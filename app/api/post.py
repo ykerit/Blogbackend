@@ -26,20 +26,13 @@ def get_all_user():
 
 @api.route('/user', methods=['POST'])
 def add_user():
-    if not request.json or not 'name' in request.json or not 'password' in request.json or not 'role_id' in request.json:
+    if not request.json or not 'name' in request.json or not 'password' in request.json:
         return jsonify({'status': 400})
 
     name = request.json['name']
     password = request.json['password']
-    role_id = request.json['role_id']
-    if int(role_id) == 1:
-        role = db.session.query(Role).filter(Role.id == '1').one()
-        old_number = role.number
-        role.number = old_number + 1
-    else:
-        role = db.session.query(Role).filter(Role.id == '2').one()
-        role.number = int(role.number) + 1
-    user = User(name=name, password=password, role_id=role_id)
+
+    user = User(name=name, password=password)
     db.session.add(user)
     db.session.commit()
 
@@ -62,13 +55,17 @@ def delete_user():
 @api.route('/article', methods=['GET'])
 def get_all_article():
     articles = Article.query.all()
-    return jsonify({'article': [article.to_json() for article in articles], 'status': 100})
+    return jsonify({'article': [article.to_json() for article in articles], 'status': 200})
 
 
 # 根据文章id获取文章
-@api.route('/article/<id>', methods=['GET'])
-def get_article(id):
-    pass
+@api.route('/article/<ids>', methods=['GET'])
+def get_article(ids):
+    article = Article.query.filter_by(id=ids)
+    if article is not None:
+        return jsonify({'item': [item.to_json() for item in article]})
+    else:
+        return jsonify({'status': 400})
 
 
 # 添加文章
@@ -99,7 +96,8 @@ def delete_article(id):
     pass
 
 
+# 角色设置
 @api.route('/role', methods=['GET'])
 def get_role():
     roles = Role.query.all()
-    return jsonify({'user': [role.to_json() for role in roles], 'status': 100})
+    return jsonify({'user': [role.to_json() for role in roles], 'status': 200})

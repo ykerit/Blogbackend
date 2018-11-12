@@ -5,14 +5,15 @@ from flask_cors import CORS
 
 from config import config
 
-#数据库
+# 数据库
 db = SQLAlchemy()
-#登录模块
+# 登录模块
 login_manage = LoginManager()
 login_manage.session_protection = 'strong'
 
+
 def create_app(config_name):
-    #实例化app
+    # 实例化app
     app = Flask(__name__)
 
     app.config.from_object(config[config_name])
@@ -23,15 +24,9 @@ def create_app(config_name):
 
     # 项目启动时自动创建数据库
     with app.test_request_context():
-        from .models import User,Role,Article
+        from .models import User, Role, Article
         db.drop_all()
         db.create_all()
-
-        admin = Role(name='admin')
-        user = Role(name='user')
-        db.session.add(admin)
-        db.session.add(user)
-        db.session.commit()
 
     # 注册main组件的蓝图
     from .main import main as main_blueprint

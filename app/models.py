@@ -4,6 +4,14 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
+# 权限
+class Permission:
+    FOLLOW = 0x01  # 喜欢
+    COMMENT = 0x02  # 全开发评论权限
+    WRITE_ARTICLES = 0x04  # 文章权限
+    MODERATE_COMMENTS = 0x08  # 半开放评论权限
+    ADMINISTER = 0x80  # 管理员
+
 '''
 表1 Article
 |id|title|body|body_html|kind|create_time|link|
@@ -22,7 +30,7 @@ class Article(db.Model):
     create_time = db.Column(db.DateTime, index=True)
     link = db.Column(db.String(128))
 
-    def __init__(self,title, body, body_html, kind, link):
+    def __init__(self, title, body, body_html, kind, link):
         self.title = title
         self.body = body
         self.body_html = body_html
@@ -58,8 +66,26 @@ class Role(db.Model):
     # 一对多
     users = db.relationship('User', backref='role', lazy='dynamic')
 
-    def __init__(self, name):
-        self.name = name
+    @staticmethod
+    def insert_roles():
+        roles = {
+            'User': (Permission.FOLLOW |
+                     Permission.COMMENT |
+                     Permission.WRITE_ARTICLES, True),
+            'Moderator': (Permission.FOLLOW |
+                          Permission.COMMENT |
+                          Permission.WRITE_ARTICLES |
+                          Permission.MODERATE_COMMENTS, False),
+            'Administrator': (0xff, False)
+        }
+        for r in roles:
+            role = Role.query.filter_by(name=r).first()
+            if role is None:
+                role = Role(name=r)
+            role.permissions = roles[r][0]
+            role.default = roles[r][1]
+            db.session.add(role)
+        db.session.commit()
 
     def __repr__(self):
         return '' % (self.id, self.name)
@@ -89,12 +115,12 @@ class User(db.Model,UserMixin):
     create_time = db.Column(db.DateTime, index=True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     password_hash = db.Column(db.String(128))
+    # 一对多
 
-    def __init__(self, name, password, role_id):
+    def __init__(self, name, password):
         self.name = name
         self.password = password
         self.create_time = datetime.utcnow()
-        self.role_id = role_id
         self.password_hash = generate_password_hash(password)
 
     def __repr__(self):
