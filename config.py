@@ -4,9 +4,10 @@ import os
 base_dir = os.path.abspath(os.path.dirname(__file__))
 sql_url = os.path.join(base_dir,'data.sqlite')
 
-class Config:
 
+class Config:
     SQLALCHEMY_COMMIT_ON_TEARDOWN = False
+
     @staticmethod
     def init_app(app):
         pass

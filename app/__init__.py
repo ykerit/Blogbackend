@@ -27,6 +27,8 @@ def create_app(config_name):
         from .models import User, Role, Article
         db.drop_all()
         db.create_all()
+        # 添加角色
+        Role.insert_roles()
 
     # 注册main组件的蓝图
     from .main import main as main_blueprint
