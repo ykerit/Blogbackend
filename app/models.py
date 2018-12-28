@@ -9,6 +9,14 @@ def gen_uuid():
     return uuid.uuid1().hex
 
 
+def set_info(body):
+    info = body[:0]
+    s = ''
+    for str in info:
+        s = s + str.strip('#|*`')
+    return s.strip().replace(' ', ',')
+
+
 # 权限
 class Permission(db.Model):
     __tablename__ = 'permission'
@@ -35,22 +43,21 @@ class Article(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128))
     info = db.Column(db.Text)
+    body = db.Column(db.Text)
     body_html = db.Column(db.Text)
-    create_time = db.Column(db.DateTime, index=True)
-    url = db.Column(db.String(128))
+    create_time = db.Column(db.DateTime, index=True, default=datetime.now())
     star = db.Column(db.SmallInteger)
     comment_number = db.Column(db.BigInteger)
     tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     comments = db.relationship("Comment", backref='article')
 
-    def __init__(self, title, info, body_html, kind, url):
+    def __init__(self, title, body, body_html):
         self.title = title
-        self.info = info
+        self.body = body
         self.body_html = body_html
-        self.kind = kind
-        self.create_time = datetime.now()
-        self.url = url
+        self.info = set_info(body)
+        # self.kind = kind
 
     def __repr__(self):
         return "<Article %r>" % self.title
@@ -61,6 +68,7 @@ class Article(db.Model):
         if "_sa_instance_state" in dict:
             del dict["_sa_instance_state"]
         return dict
+
 
 
 # 评论
@@ -181,6 +189,14 @@ class Admin(db.Model):
         self.name = name
         self.password_hash = generate_password_hash(password)
         self.uuid = gen_uuid()
+
+    @staticmethod
+    def insert_admin():
+        admin = Admin.query.filter_by(name='yker').first()
+        if admin is None:
+            admin = Admin(name='yker', password='yker123')
+        db.session.add(admin)
+        db.session.commit()
 
     def __repr__(self):
         return "<Admin %r>" % self.id
