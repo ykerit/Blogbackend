@@ -1,12 +1,23 @@
 from flask import jsonify, request
+# from sqlalchemy import func
 from app.models import User, Article, Role, Admin, Adminlog, Oplog, Userlog, Comment
 from . import api
 from .. import db
 from manage import app
 
 
+# 生成log json
+def gen_json(object):
+    result = []
+    for obj in object:
+        result.append({'id': obj.id, 'name': obj.name,
+                       'create_time': obj.create_time,
+                       'ip': obj.ip})
+    return result
+
+
 # 登录验证
-@api.route('/login', methods=['POST'])
+@api.route('/api/login', methods=['POST'])
 def login():
     user = User.query.filter_by(name=request.form.get('name')).first()
     admin = Admin.query.filter_by(name=request.form.get('name')).first()
@@ -16,33 +27,37 @@ def login():
         user_log = Userlog(user_id=user.id)
         db.session.add(user_log)
         db.session.commit()
-        return jsonify({'is_authorization': 'true', 'name': request.form.get('name'),\
+        return jsonify({'is_authorization': 'true', 'name': request.form.get('name'), \
                         'token': user.uuid, 'status': 200})
 
     if admin is not None and admin.verify_password(password=password):
         admin_log = Adminlog(admin_id=admin.id)
         db.session.add(admin_log)
         db.session.commit()
-        return jsonify({'is_authorization': 'true', 'name': request.form.get('name'),\
+        return jsonify({'is_authorization': 'true', 'name': request.form.get('name'), \
                         'token': admin.uuid, 'status': 200})
-
     else:
         return jsonify({'is_authorization': 'false'})
 
 
 # 用户api 增删改查
-@api.route('/user', methods=['GET'])
+@api.route('/api/user', methods=['GET'])
 def get_user():
-    users = User.query.outerjoin(Role).add_columns(User.id, User.name, User.uuid,
-                                                   User.create_time, Role.role_name)
+    page_size = request.args.get('page_size')
+    users = User.query.outerjoin(Role).add_columns(User.id,
+                                                   User.name,
+                                                   User.uuid,
+                                                   User.create_time,
+                                                   Role.role_name).\
+        paginate(int(page_size), per_page=10, error_out=False)
     result = []
-    for user in users:
+    for user in users.items:
         result.append({'id': user.id, 'name': user.name, 'role': user.role_name,
                        'create_time': user.create_time, 'uuid': user.uuid})
-    return jsonify({'user': result, 'status': 200})
+    return jsonify({'userData': result, 'user_total': users.total, 'status': 200})
 
 
-@api.route('/user', methods=['POST'])
+@api.route('/api/user', methods=['POST'])
 def add_user():
     if not request.json or not 'name' in request.json or not 'password' in request.json:
         return jsonify({'status': 400})
@@ -61,20 +76,19 @@ def add_user():
                     'status': 200, })
 
 
-@api.route('/user', methods=['PUT'])
+@api.route('/api/user', methods=['PUT'])
 def update_user():
     pass
 
 
-@api.route('/user/<int:id>', methods=['DELETE'])
+@api.route('/api/user/<int:id>', methods=['DELETE'])
 def delete_user(id):
-
     if id is None and User.query.filter_by(id=id).first() is None:
         return jsonify({'status': 400})
 
     user = User.query.filter_by(id=id).first()
     db.session.delete(user)
-    op_log = Oplog(reason='删除文章')
+    op_log = Oplog(reason='删除用户')
     db.session.add(op_log)
     db.session.commit()
     return jsonify({'flag': 'success', 'status': 200})
@@ -82,46 +96,69 @@ def delete_user(id):
 
 # 文章api
 # 获得所有文章
-@api.route('/article', methods=['GET'])
+@api.route('/api/article', methods=['GET'])
 def get_all_article():
-    articles = Article.query.limit(10).all()
-    return jsonify({'article': [article.to_json() for article in articles], 'status': 200})
+    page_size = request.args.get('page_size')
+    articles = Article.query.add_columns(Article.id,
+                                         Article.title,
+                                         Article.create_time,
+                                         Article.info,
+                                         Article.star,
+                                         Article.comment_number).\
+        paginate(int(page_size), per_page=4, error_out=False)
+
+    result = []
+    app.logger.info(articles.total)
+    for article in articles.items:
+        result.append({'id': article.id, 'title': article.title,
+                       'create_time': article.create_time,
+                       'description': article.info, 'star': article.star,
+                       'comment': article.comment_number})
+    
+    return jsonify({'articleList': result,
+                    'total': articles.total, 'status': 200})
 
 
 # 根据文章id获取文章
-@api.route('/article/<ids>', methods=['GET'])
-def get_article(ids):
-    article = Article.query.filter_by(id=ids)
-    if article is not None:
-        return jsonify({'item': [item.to_json() for item in article]})
-    else:
+@api.route('/api/article/<int:id>', methods=['GET'])
+def get_article(id):
+    if id is None and Article.query.filter_by(id=id).first() is None:
         return jsonify({'status': 400})
+    articles = Article.query.filter_by(id=id).add_columns(Article.id, Article.title, Article.create_time,
+                                                          Article.body_html)
+    result = []
+    for article in articles:
+        result.append({'id': article.id, 'title': article.title,
+                       'create_time': article.create_time, 'html': article.body_html})
+    return jsonify({'articleContent': result, 'status': 200})
 
 
 # 添加文章
-@api.route('/article', methods=['POST'])
+@api.route('/api/article', methods=['POST'])
 def add_article():
     if not request.json or not 'title' in request.json or not 'body' in request.json \
-            or not 'body_html' in request.json or not 'link' in request.json:
+            or not 'body_html' in request.json:
         return jsonify({'status': 400})
 
-    article = Article(title=request.json['title'], info=request.json['info'],
-                      body_html=request.json['body_html'], url=request.json['url'])
+    article = Article(title=request.json['title'], body=request.json['body'],
+                      body_html=request.json['body_html'])
+    op_log = Oplog(reason='发布文章')
     db.session.add(article)
+    db.session.add(op_log)
     db.session.commit()
     return jsonify({'flag': 'success', 'status': 200})
 
 
 # 更新文章
-@api.route('/article/<id>', methods=['put'])
+@api.route('/api/article/<int:id>', methods=['put'])
 def update_article():
     pass
 
 
-@api.route('/article/<id>', methods=['DELETE'])
+@api.route('/api/article/<int:id>', methods=['DELETE'])
 def delete_article(id):
     if id is None and Article.query.filter_by(id=id).first() is None:
-        return jsonify({'status': 200})
+        return jsonify({'status': 400})
     articel = Article.query.filter_by(id=id).first()
     op_log = Oplog(reason='删除文章')
     db.session.delete(articel)
@@ -131,13 +168,13 @@ def delete_article(id):
 
 
 # 角色设置
-@api.route('/role', methods=['GET'])
+@api.route('/api/role', methods=['GET'])
 def get_role():
     roles = Role.query.all()
-    return jsonify({'role': [role.to_json() for role in roles], 'status': 200})
+    return jsonify({'roleData': [role.to_json() for role in roles], 'status': 200})
 
 
-@api.route('/role', methods=['POST'])
+@api.route('/api/role', methods=['POST'])
 def add_role():
     name = request.json['name']
 
@@ -151,9 +188,8 @@ def add_role():
         return jsonify({'status': 400})
 
 
-@api.route('/role/<int:id>', methods=['DELETE'])
+@api.route('/api/role/<int:id>', methods=['DELETE'])
 def delete_role(id):
-
     if id is None and Role.query.filter_by(id=id).first() is None:
         return jsonify({'status': 400})
 
@@ -166,35 +202,45 @@ def delete_role(id):
 
 
 # 管理员
-@api.route('/admin', methods=['GET'])
+@api.route('/api/admin', methods=['GET'])
 def get_admin():
-    admins = User.query.outerjoin(Role).add_columns(Admin.id, Admin.name, Admin.uuid,
-                                                    Admin.create_time, Role.role_name)
+    page_size = request.args.get('page_size')
+    admins = Admin.query.outerjoin(Role).add_columns(Admin.id,
+                                                     Admin.name,
+                                                     Admin.uuid,
+                                                     Admin.create_time,
+                                                     Role.role_name).\
+        paginate(int(page_size), per_page=10, error_out=False)
     result = []
-    for admin in admins:
-        result.append({'id': admin.id, 'name': admin.name, 'role': admin.role_name, 'create_time': admin.create_time,
+    for admin in admins.items:
+        result.append({'id': admin.id, 'name': admin.name,
+                       'role': admin.role_name, 'create_time': admin.create_time,
                        'uuid': admin.uuid})
 
-    return jsonify({'admin': result, 'status': 200})
+    return jsonify({'adminData': result, 'admin_total': admins.total, 'status': 200})
 
 
-@api.route('/admin', methods=['POST'])
+@api.route('/api/admin', methods=['POST'])
 def add_admin():
+    if not request.json or not 'name' in request.json or not 'password' in request.json:
+        return jsonify({'status': 400})
+
     name = request.json['name']
     password = request.json['password']
 
-    if name and password is not None:
-        admin = Admin(name=name, password=password)
-        db.session.add(admin)
-        db.session.commit()
-        return jsonify({'flag': 'success', 'status': 200})
-    else:
-        return jsonify({'status': 400})
+    admin = Admin(name=name, password=password)
+    db.session.add(admin)
+    db.session.commit()
+    op_log = Oplog(reason='添加用户')
+    db.session.add(op_log)
+    db.session.commit()
+
+    return jsonify({'flag': 'success',
+                    'status': 200, })
 
 
-@api.route('/admin/<int:id>', methods=['DELETE'])
+@api.route('/api/admin/<int:id>', methods=['DELETE'])
 def delete_admin(id):
-
     if id is None and Admin.query.filter_by(id=id).first() is None:
         return jsonify({'status': 400})
 
@@ -207,15 +253,16 @@ def delete_admin(id):
 
 
 # 评论
-@api.route('/comment/<int:id>', methods=['GET'])
+@api.route('/api/comment/<int:id>', methods=['GET'])
 def get_comment(id):
+    page_size = request.args.get('page_size')
     if id is None and Comment.query.filter_by(id=id).first() is None:
         return jsonify({'status': 400})
-    comments = Comment.query.filter_by(id=id).all()
+    comments = Comment.query.filter_by(id=id).paginate(int(page_size), per_page=10, error_out=False)
     return jsonify({'comment': [comment.to_json() for comment in comments], 'status': 200})
 
 
-@api.route('/comment', methods=['POST'])
+@api.route('/api/comment', methods=['POST'])
 def add_comment():
     if request.json['id'] and request.json['user_id'] is None:
         return jsonify({'status': 400})
@@ -224,4 +271,47 @@ def add_comment():
     db.session.commit()
     return jsonify({'flag': 'success', 'status': 200})
 
+
 # 权限管理
+
+
+# 日志
+@api.route('/api/admin_log', methods=['GET'])
+def get_admin_log():
+    page_size = request.args.get('page_size')
+    logs = Adminlog.query.outerjoin(Admin).add_columns(Adminlog.id,
+                                                       Admin.name,
+                                                       Adminlog.ip,
+                                                       Adminlog.create_time).\
+        paginate(int(page_size), per_page=10, error_out=False)
+
+    return jsonify({'AdminLog': gen_json(logs.items), 'adminLog_total': logs.total, 'status': 200})
+
+
+@api.route('/api/user_log', methods=['GET'])
+def get_user_log():
+    page_size = request.args.get('page_size')
+    logs = Userlog.query.outerjoin(User).add_columns(Userlog.id,
+                                                     User.name,
+                                                     Userlog.ip,
+                                                     Userlog.create_time).\
+        paginate(int(page_size), per_page=10, error_out=False)
+
+    return jsonify({'UserLog': gen_json(logs.items), 'userLog_total': logs.total, 'status': 200})
+
+
+@api.route('/api/op_log', methods=['GET'])
+def get_op_log():
+    page_size = request.args.get('page_size')
+    logs = Oplog.query.outerjoin(Admin).add_columns(Oplog.id,
+                                                    Admin.name,
+                                                    Oplog.ip,
+                                                    Oplog.create_time,
+                                                    Oplog.reason).\
+        paginate(int(page_size), per_page=10, error_out=False)
+    result = []
+    for obj in logs.items:
+        result.append({'id': obj.id, 'name': obj.name,
+                       'create_time': obj.create_time,
+                       'ip': obj.ip, 'reason': obj.reason})
+    return jsonify({'OpLog': result, 'op_total': logs.total, 'status': 200})
