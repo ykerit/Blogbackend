@@ -5,12 +5,18 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
 
 
+# uuid生成
 def gen_uuid():
     return uuid.uuid1().hex
 
 
+# 时间日期生成
+def gen_time():
+    return datetime.now()
+
+
 def set_info(body):
-    info = body[:0]
+    info = body[:20]
     s = ''
     for str in info:
         s = s + str.strip('#|*`')
@@ -24,7 +30,10 @@ class Permission(db.Model):
     name = db.Column(db.String(100), unique=True)
     url = db.Column(db.String(255), unique=True)
     role = db.Column(db.Integer, db.ForeignKey('roles.id'))  # 所属组
-    create_time = db.Column(db.DateTime, index=True, default=datetime.now())
+    create_time = db.Column(db.DateTime, index=True,)
+
+    def __init__(self):
+        self.create_time = gen_time()
 
 
 # 标签
@@ -32,8 +41,11 @@ class Tag(db.Model):
     __tablename__ = 'tag'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True)
-    create_time = db.Column(db.DateTime, index=True, default=datetime.now())
+    create_time = db.Column(db.DateTime, index=True)
     article = db.relationship("Article", backref='tag')
+
+    def __init__(self):
+        self.create_time = gen_time()
 
 
 # 文章
@@ -45,9 +57,8 @@ class Article(db.Model):
     info = db.Column(db.Text)
     body = db.Column(db.Text)
     body_html = db.Column(db.Text)
-    create_time = db.Column(db.DateTime, index=True, default=datetime.now())
+    create_time = db.Column(db.DateTime, index=True)
     star = db.Column(db.SmallInteger)
-    comment_number = db.Column(db.BigInteger)
     tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     comments = db.relationship("Comment", backref='article')
@@ -57,6 +68,7 @@ class Article(db.Model):
         self.body = body
         self.body_html = body_html
         self.info = set_info(body)
+        self.create_time = gen_time()
         # self.kind = kind
 
     def __repr__(self):
@@ -70,14 +82,20 @@ class Article(db.Model):
         return dict
 
 
-
 # 评论
 class Comment(db.Model):
     __tablename__ = 'comment'
     id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.Integer, db.ForeignKey('article.id'))
+    content = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    create_time = db.Column(db.DateTime, index=True, default=datetime.now())
+    article_id = db.Column(db.Integer, db.ForeignKey('article.id'))
+    create_time = db.Column(db.DateTime, index=True)
+
+    def __init__(self, content, user_id, article_id):
+        self.content = content
+        self.user_id = user_id
+        self.article_id = article_id
+        self.create_time = gen_time()
 
     def __repr__(self):
         return '<Comment %r>' % self.id
@@ -96,7 +114,6 @@ class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     role_name = db.Column(db.String, unique=True)
     permission = db.relationship("Permission", backref='roles')
-    admin = db.relationship('Admin', backref='roles', lazy='dynamic')
     user = db.relationship('User', backref='roles', lazy='dynamic')
 
     @staticmethod
@@ -127,19 +144,30 @@ class User(db.Model, UserMixin):
     # 字段
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(16), unique=True)
-    create_time = db.Column(db.DateTime, index=True, default=datetime.now())
+    create_time = db.Column(db.DateTime, index=True)
     password_hash = db.Column(db.String(128))
     face = db.Column(db.String(255), unique=True)
     uuid = db.Column(db.String(255), unique=True)
-    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), default=2)
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     article = db.relationship('Article', backref='user', lazy='dynamic')
-    user_logs = db.relationship('Userlog', backref='user')  # 会员日志外检关系关联
+    user_logs = db.relationship('Userlog', backref='user')  # 会员日志外键关系关联
+    admin_logs = db.relationship('Adminlog', backref='user') # 管理员外键关系关联
     comments = db.relationship('Comment', backref='user')  # 评论外键关联
 
-    def __init__(self, name, password):
+    def __init__(self, name, password, role):
         self.name = name
         self.password_hash = generate_password_hash(password)
+        self.role_id = role
         self.uuid = gen_uuid()
+        self.create_time = gen_time()
+
+    @staticmethod
+    def insert_admin():
+        admin = User.query.filter_by(name='yker').first()
+        if admin is None:
+            admin = User(name='yker', password='yker123', role=1)
+        db.session.add(admin)
+        db.session.commit()
 
     def __repr__(self):
         return '' % (self.id, self.name)
@@ -164,63 +192,28 @@ class Userlog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     ip = db.Column(db.String(100))
-    create_time = db.Column(db.DateTime, index=True, default=datetime.now())
+    create_time = db.Column(db.DateTime, index=True)
+
+    def __init__(self):
+        self.create_time = gen_time()
 
     def to_json(self):
         dict = self.__dict__
         if "_sa_instance_state" in dict:
             del dict["_sa_instance_state"]
         return dict
-
-
-# 管理员
-class Admin(db.Model):
-    __tablename = 'admin'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True)
-    password_hash = db.Column(db.String(128))
-    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), default=1)
-    uuid = db.Column(db.String(255), unique=True)
-    create_time = db.Column(db.DateTime, index=True, default=datetime.now())
-    admin_logs = db.relationship('Adminlog', backref='admin')
-    op_logs = db.relationship('Oplog', backref='admin')
-
-    def __init__(self, name, password):
-        self.name = name
-        self.password_hash = generate_password_hash(password)
-        self.uuid = gen_uuid()
-
-    @staticmethod
-    def insert_admin():
-        admin = Admin.query.filter_by(name='yker').first()
-        if admin is None:
-            admin = Admin(name='yker', password='yker123')
-        db.session.add(admin)
-        db.session.commit()
-
-    def __repr__(self):
-        return "<Admin %r>" % self.id
-
-    def to_json(self):
-        dict = self.__dict__
-        if "_sa_instance_state" in dict:
-            del dict["_sa_instance_state"]
-        return dict
-
-    def verify_password(self, password):
-        if self.password_hash is None:
-            return False
-        else:
-            return check_password_hash(self.password_hash, password)
 
 
 # 管理员日志
 class Adminlog(db.Model):
     __tablename__ = 'adminlog'
     id = db.Column(db.Integer, primary_key=True)
-    admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'))
+    admin_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     ip = db.Column(db.String(100))
-    create_time = db.Column(db.DateTime, index=True, default=datetime.now())
+    create_time = db.Column(db.DateTime, index=True)
+
+    def __init__(self):
+        self.create_time = gen_time()
 
     def __repr__(self):
         return "<Admin %r>" % self.id
@@ -236,10 +229,14 @@ class Adminlog(db.Model):
 class Oplog(db.Model):
     __tablename__ = 'oplog'
     id = db.Column(db.Integer, primary_key=True)
-    admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'))
+    admin_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     ip = db.Column(db.String(100))
     reason = db.Column(db.String(600))
-    create_time = db.Column(db.DateTime, index=True, default=datetime.now())
+    create_time = db.Column(db.DateTime, index=True)
+
+    def __init__(self, reason):
+        self.create_time = gen_time()
+        self.reason = reason
 
     def __repr__(self):
         return "<opmin %r>" % self.id
