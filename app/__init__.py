@@ -19,12 +19,13 @@ def create_app(config_name):
 
     # 项目启动时自动创建数据库
     with app.test_request_context():
-        from .models import User, Role, Admin
+        from .models import User, Role
         db.drop_all()
         db.create_all()
         # 添加角色
         Role.insert_roles()
-        Admin.insert_admin()
+        # 添加超级管理员
+        User.insert_admin()
 
     # 注册main组件的蓝图
     from .main import main as main_blueprint
