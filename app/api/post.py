@@ -1,10 +1,12 @@
 from flask import jsonify, request
-from datetime import datetime
 from sqlalchemy import func
-from app.models import User, Article, Role, Adminlog, Oplog, Userlog, Comment
+from ..auth.auths import Auth
+from app.models import User, Article, Role, \
+    Adminlog, Oplog, Userlog, Comment, Kind, Tag
 from . import api
 from .. import db
-from manage import app
+import json
+
 # 管理员 与 普通用户
 ADMINISTRATOR = 1
 ORDINARY = 2
@@ -20,40 +22,12 @@ def gen_json(object):
     return result
 
 
-# 登录验证
-@api.route('/api/login', methods=['POST'])
-def login():
-    user = User.query.filter_by(name=request.form.get('name')).first()
-    password = request.form.get('password')
-
-    if user is not None and user.verify_password(password=password):
-        user_log = Userlog(user_id=user.id)
-        db.session.add(user_log)
-        db.session.commit()
-        return jsonify({'is_authorization': 'true', 'id': user.id,
-                        'name': request.form.get('name'),
-                        'token': user.uuid, 'status': 200})
-
-
-# 注册
-@api.route('/api/register', methods=['POST'])
-def register():
-    name = request.form.get('name')
-    password = request.form.get('password')
-    if name and password:
-        result = User.query.filter_by(name=name).count()
-        if result is not 0:
-            user = User(name=name, password=password, role=ORDINARY)
-            db.session.add(user)
-            db.session.commit()
-            op_log = Oplog(reason='用户注册')
-            db.session.add(op_log)
-            db.session.commit()
-            users = User.query.filter_by(name=request.form.get('name')).first()
-            return jsonify({'is_authorization': 'true', 'name': users.name,
-                            'token': users.uuid, 'status': 200})
-        return jsonify({'flag': 'error', 'reason': '该账号已经注册', 'status': 400})
-    return jsonify({'flag': 'error', 'status': 400})
+# token验证
+@api.before_request
+def before_request():
+    result = Auth.identify()
+    if result['flag'] == 'error':
+        return jsonify(result)
 
 
 # 用户api 增删改查
@@ -63,15 +37,13 @@ def get_user():
     users = User.query.filter_by(role_id=ORDINARY).\
         outerjoin(Role).add_columns(User.id,
                                     User.name,
-                                    User.uuid,
                                     User.create_time,
                                     Role.role_name).\
         paginate(int(page_size), per_page=10, error_out=False)
     result = []
     for user in users.items:
         result.append({'id': user.id, 'name': user.name, 'role': user.role_name,
-                       'create_time': user.create_time.strftime("%Y-%m-%d %H:%M:%S"),
-                       'uuid': user.uuid})
+                       'create_time': user.create_time.strftime("%Y-%m-%d %H:%M:%S")})
     return jsonify({'userData': result, 'user_total': users.total, 'status': 200})
 
 
@@ -89,7 +61,6 @@ def add_user():
 
     user = User(name=name, password=password, role=ORDINARY)
     db.session.add(user)
-    db.session.commit()
     op_log = Oplog(reason='添加用户')
     db.session.add(op_log)
     db.session.commit()
@@ -235,7 +206,6 @@ def get_admin():
     admins = User.query.filter_by(role_id=ADMINISTRATOR).\
         outerjoin(Role).add_columns(User.id,
                                     User.name,
-                                    User.uuid,
                                     User.create_time,
                                     Role.role_name).\
         paginate(int(page_size), per_page=10, error_out=False)
@@ -243,8 +213,7 @@ def get_admin():
     for admin in admins.items:
         result.append({'id': admin.id, 'name': admin.name,
                        'role': admin.role_name,
-                       'create_time': admin.create_time.strftime("%Y-%m-%d %H:%M:%S"),
-                       'uuid': admin.uuid})
+                       'create_time': admin.create_time.strftime("%Y-%m-%d %H:%M:%S")})
 
     return jsonify({'adminData': result, 'admin_total': admins.total, 'status': 200})
 
@@ -263,13 +232,11 @@ def add_admin():
 
     admin = User(name=name, password=password, role=ADMINISTRATOR)
     db.session.add(admin)
-    db.session.commit()
     op_log = Oplog(reason='添加管理员')
     db.session.add(op_log)
     db.session.commit()
 
-    return jsonify({'flag': 'success',
-                    'status': 200, })
+    return jsonify({'flag': 'success', 'status': 200, })
 
 
 @api.route('/api/admin/<int:id>', methods=['DELETE'])
@@ -323,10 +290,11 @@ def add_comment():
 @api.route('/api/admin_log', methods=['GET'])
 def get_admin_log():
     page_size = request.args.get('page_size')
-    logs = Adminlog.query.outerjoin(User).add_columns(Adminlog.id,
-                                                      User.name,
-                                                      Adminlog.ip,
-                                                      Adminlog.create_time).\
+    logs = Adminlog.query.outerjoin(User).filter_by(role_id=ADMINISTRATOR).\
+        add_columns(Adminlog.id,
+                    User.name,
+                    Adminlog.ip,
+                    Adminlog.create_time).\
         paginate(int(page_size), per_page=10, error_out=False)
 
     return jsonify({'AdminLog': gen_json(logs.items),
@@ -337,10 +305,11 @@ def get_admin_log():
 @api.route('/api/user_log', methods=['GET'])
 def get_user_log():
     page_size = request.args.get('page_size')
-    logs = Userlog.query.outerjoin(User).add_columns(Userlog.id,
-                                                     User.name,
-                                                     Userlog.ip,
-                                                     Userlog.create_time).\
+    logs = Userlog.query.outerjoin(User).filter_by(role_id=ORDINARY).\
+        add_columns(Userlog.id,
+                    User.name,
+                    Userlog.ip,
+                    Userlog.create_time).\
         paginate(int(page_size), per_page=10, error_out=False)
 
     return jsonify({'UserLog': gen_json(logs.items),
@@ -363,3 +332,103 @@ def get_op_log():
                        'create_time': obj.create_time.strftime("%Y-%m-%d %H:%M:%S"),
                        'ip': obj.ip, 'reason': obj.reason})
     return jsonify({'OpLog': result, 'op_total': logs.total, 'status': 200})
+
+
+# 类别
+@api.route('/api/kind', methods=['GET'])
+def get_kind():
+    page_size = request.args.get('page_size')
+    kinds = db.session.query(Kind, func.count(Article.kind_id).label('number'))\
+        .outerjoin(Article).group_by(Kind.id).\
+        add_columns(Kind.id,
+                    Kind.name,
+                    Kind.create_time,). \
+        paginate(int(page_size), per_page=10, error_out=False)
+    result = []
+    for kind in kinds.items:
+        result.append({'id': kind.id,
+                       'name': kind.name,
+                       'number': kind.number,
+                       'create_time': kind.create_time.strftime("%Y-%m-%d %H:%M:%S")})
+    return jsonify({'kind': result, 'kind_total': kinds.total, 'status': 200})
+
+
+@api.route('/api/kind', methods=['POST'])
+def add_kind():
+    if not request.json or 'name' not in request.json:
+        return jsonify({'status': 400})
+
+    name = request.json['name']
+    if Kind.query.filter_by(name=name).count() is not 0:
+        return jsonify({'flag': 'error', 'reason': '该分类已存在', 'status': 400})
+    kind = Kind(name=name)
+    db.session.add(kind)
+    op_log = Oplog(reason='添加分类')
+    db.session.add(op_log)
+    db.session.commit()
+    return jsonify({'flag': 'success',
+                    'status': 200})
+
+
+@api.route('/api/kind/<int:id>', methods=['DELETE'])
+def delete_kind(id):
+    if id is None and Kind.query.filter_by(id=id).first() is None:
+        return jsonify({'status': 400})
+
+    kind = Kind.query.filter_by(id=id).first()
+    db.session.delete(kind)
+    op_log = Oplog(reason='删除分类')
+    db.session.add(op_log)
+    db.session.commit()
+    return jsonify({'flag': 'success', 'status': 200})
+
+
+@api.route('/api/kind', methods=['UPDATE'])
+def up_kind():
+    pass
+
+
+@api.route('/api/tag', methods=['GET'])
+def get_tag():
+    page_size = request.args.get('page_size')
+    tags = Tag.query.add_columns(Tag.id,
+                                 Tag.name,
+                                 Tag.create_time). \
+        paginate(int(page_size), per_page=10, error_out=False)
+    result = []
+    for tag in tags.items:
+        result.append({'id': tag.id,
+                       'name': tag.name,
+                       'create_time': tag.create_time.strftime("%Y-%m-%d %H:%M:%S")})
+
+    return jsonify({'tag': result, 'tag_total': tags.total, 'status': 200})
+
+
+@api.route('/api/tag', methods=['POST'])
+def add_tag():
+    if not request.json or 'name' not in request.json:
+        return jsonify({'status': 400})
+
+    name = request.json['name']
+    if Tag.query.filter_by(name=name).count() is not 0:
+        return jsonify({'flag': 'error', 'reason': '该标签已存在', 'status': 400})
+    tag = Tag(name=name)
+    db.session.add(tag)
+    op_log = Oplog(reason='添加标签')
+    db.session.add(op_log)
+    db.session.commit()
+    return jsonify({'flag': 'success',
+                    'status': 200})
+
+
+@api.route('/api/tag/<int:id>', methods=['DELETE'])
+def delete_tag(id):
+    if id is None and Tag.query.filter_by(id=id).first() is None:
+        return jsonify({'status': 400})
+
+    tag = Tag.query.filter_by(id=id).first()
+    db.session.delete(tag)
+    op_log = Oplog(reason='删除标签')
+    db.session.add(op_log)
+    db.session.commit()
+    return jsonify({'flag': 'success', 'status': 200})

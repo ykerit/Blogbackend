@@ -2,12 +2,6 @@ from app import db
 from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-import uuid
-
-
-# uuid生成
-def gen_uuid():
-    return uuid.uuid1().hex
 
 
 # 时间日期生成
@@ -44,8 +38,22 @@ class Tag(db.Model):
     create_time = db.Column(db.DateTime, index=True)
     article = db.relationship("Article", backref='tag')
 
-    def __init__(self):
+    def __init__(self, name):
+        self.name = name
         self.create_time = gen_time()
+
+
+# 类别
+class Kind(db.Model):
+    __tablename__ = 'kind'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True)
+    create_time = db.Column(db.DateTime, index=True)
+    article = db.relationship("Article", backref='kind')
+
+    def __init__(self, name):
+        self.create_time = gen_time()
+        self.name = name
 
 
 # 文章
@@ -60,6 +68,7 @@ class Article(db.Model):
     create_time = db.Column(db.DateTime, index=True)
     star = db.Column(db.SmallInteger)
     tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'))
+    kind_id = db.Column(db.Integer, db.ForeignKey('kind.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     comments = db.relationship("Comment", backref='article')
 
@@ -147,7 +156,6 @@ class User(db.Model, UserMixin):
     create_time = db.Column(db.DateTime, index=True)
     password_hash = db.Column(db.String(128))
     face = db.Column(db.String(255), unique=True)
-    uuid = db.Column(db.String(255), unique=True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     article = db.relationship('Article', backref='user', lazy='dynamic')
     user_logs = db.relationship('Userlog', backref='user')  # 会员日志外键关系关联
@@ -158,7 +166,6 @@ class User(db.Model, UserMixin):
         self.name = name
         self.password_hash = generate_password_hash(password)
         self.role_id = role
-        self.uuid = gen_uuid()
         self.create_time = gen_time()
 
     @staticmethod
@@ -194,8 +201,9 @@ class Userlog(db.Model):
     ip = db.Column(db.String(100))
     create_time = db.Column(db.DateTime, index=True)
 
-    def __init__(self):
+    def __init__(self, user_id):
         self.create_time = gen_time()
+        self.user_id = user_id
 
     def to_json(self):
         dict = self.__dict__
@@ -212,8 +220,9 @@ class Adminlog(db.Model):
     ip = db.Column(db.String(100))
     create_time = db.Column(db.DateTime, index=True)
 
-    def __init__(self):
+    def __init__(self, admin_id):
         self.create_time = gen_time()
+        self.admin_id = admin_id
 
     def __repr__(self):
         return "<Admin %r>" % self.id
