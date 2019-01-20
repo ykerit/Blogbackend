@@ -28,8 +28,8 @@ def create_app(config_name):
         User.insert_admin()
 
     # 注册main组件的蓝图
-    from .main import main as main_blueprint
-    app.register_blueprint(main_blueprint, url_prefix='/main')
+    from .auth import auth as auth_blueprint
+    app.register_blueprint(auth_blueprint, url_prefix='/auth')
     # 注册api组件的蓝图
     from .api import api as api_blueprint
     app.register_blueprint(api_blueprint, url_prefix='/api')

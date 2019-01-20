@@ -13,7 +13,7 @@ manager = Manager(app)
 
 @app.route('/')
 def hello():
-    return 'api 0.3'
+    return 'api 0.6'
 
 
 if __name__ == '__main__':
