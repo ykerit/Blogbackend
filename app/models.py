@@ -22,12 +22,39 @@ class Permission(db.Model):
     __tablename__ = 'permission'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True)
-    url = db.Column(db.String(255), unique=True)
+    url = db.Column(db.String(255), index=True)
+    method = db.Column(db.String(255), index=True)
     role = db.Column(db.Integer, db.ForeignKey('roles.id'))  # 所属组
-    create_time = db.Column(db.DateTime, index=True,)
+    create_time = db.Column(db.DateTime, index=True)
 
-    def __init__(self):
+    def __init__(self, name, url, method, role):
+        self.name = name
+        self.url = url
+        self.method = method
+        self.role = role
         self.create_time = gen_time()
+
+    @staticmethod
+    def insert_permission():
+
+        permissions = [
+            {
+                'name': '权限查看',
+                'url': '/api/permission',
+                'method': 'GET',
+                'role': 1
+            },
+            {
+                'name': '权限增加',
+                'url': '/api/permission',
+                'method': 'POST',
+                'role': 1
+            }
+        ]
+        for i in permissions:
+            permission = Permission(name=i['name'], url=i['url'], method=i['method'], role=i['role'])
+            db.session.add(permission)
+        db.session.commit()
 
 
 # 标签
@@ -159,7 +186,7 @@ class User(db.Model, UserMixin):
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     article = db.relationship('Article', backref='user', lazy='dynamic')
     user_logs = db.relationship('Userlog', backref='user')  # 会员日志外键关系关联
-    admin_logs = db.relationship('Adminlog', backref='user') # 管理员外键关系关联
+    admin_logs = db.relationship('Adminlog', backref='user')  # 管理员外键关系关联
     comments = db.relationship('Comment', backref='user')  # 评论外键关联
 
     def __init__(self, name, password, role):
