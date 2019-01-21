@@ -1,10 +1,10 @@
 from flask import jsonify, request
 import jwt
 from datetime import datetime, timedelta
-from app.models import User, Userlog, Oplog
+from app.models import User, Userlog, Oplog, Permission
 from . import auth
 from .. import db
-
+# 管理员 与 普通用户
 ADMINISTRATOR = 1
 ORDINARY = 2
 
@@ -51,11 +51,23 @@ class Auth:
         except jwt.InvalidTokenError:
             return "无效的Token"
 
+    # 管理员与普通会员api权限验证
+    @staticmethod
+    def route_interception(path, methods, role):
+        print(path, methods, role)
+        # 去掉多余url参数
+        if path.count('/') > 2:
+            path = path[0:path.rfind('/')]
+        permission = Permission.query.\
+            filter_by(url=path, method=methods, role=role).first()
+        if permission is not None:
+            return True
+        else:
+            return False
+
     @staticmethod
     def identify():
-
         params = request.headers.get('Authorization')
-
         if params:
             auth_token = Auth.decode_token(request.headers.get('Authorization'))
             if isinstance(auth_token, str):
@@ -66,17 +78,24 @@ class Auth:
             if not auth_token or auth_token['headers']['typ'] != 'JWT':
                 result = {
                     'flag': 'error',
-                    'msg': '找不到该用户信息'}
+                    'msg': '请传递正确的验证头信息'}
             else:
                 user = User.query.filter_by(name=auth_token['data']['user_name']).first()
                 if user is None:
                     result = {
                         'flag': 'error',
-                        'msg': '请传递正确的验证头信息'}
+                        'msg': '找不到该用户信息'}
                 else:
-                    result = {
-                        'flag': 'success',
-                        'msg': '请求成功'}
+                    if Auth.route_interception(request.path, request.method, user.role_id):
+                        result = {
+                            'flag': 'success',
+                            'msg': '请求成功'
+                        }
+                    else:
+                        result = {
+                            'flag': 'error',
+                            'msg': '无权限'
+                        }
         else:
             result = {
                     'flag': 'error',

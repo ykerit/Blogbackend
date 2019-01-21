@@ -2,7 +2,7 @@ from flask import jsonify, request
 from sqlalchemy import func
 from ..auth.auths import Auth
 from app.models import User, Article, Role, \
-    Adminlog, Oplog, Userlog, Comment, Kind, Tag
+    Adminlog, Oplog, Userlog, Comment, Kind, Tag, Permission
 from . import api
 from .. import db
 import json
@@ -31,7 +31,7 @@ def before_request():
 
 
 # 用户api 增删改查
-@api.route('/api/user', methods=['GET'])
+@api.route('/user', methods=['GET'])
 def get_user():
     page_size = request.args.get('page_size')
     users = User.query.filter_by(role_id=ORDINARY).\
@@ -47,7 +47,7 @@ def get_user():
     return jsonify({'userData': result, 'user_total': users.total, 'status': 200})
 
 
-@api.route('/api/user', methods=['POST'])
+@api.route('/user', methods=['POST'])
 def add_user():
     if not request.json or not 'name' in request.json or not 'password' in request.json:
         return jsonify({'status': 400})
@@ -69,12 +69,12 @@ def add_user():
                     'status': 200})
 
 
-@api.route('/api/user', methods=['PUT'])
+@api.route('/user', methods=['PUT'])
 def update_user():
     pass
 
 
-@api.route('/api/user/<int:id>', methods=['DELETE'])
+@api.route('/user/<int:id>', methods=['DELETE'])
 def delete_user(id):
     if id is None and User.query.filter_by(id=id).first() is None:
         return jsonify({'status': 400})
@@ -89,7 +89,7 @@ def delete_user(id):
 
 # 文章api
 # 获得所有文章
-@api.route('/api/article', methods=['GET'])
+@api.route('/article', methods=['GET'])
 def get_all_article():
     page_size = request.args.get('page_size')
 
@@ -117,7 +117,7 @@ def get_all_article():
 
 
 # 根据文章id获取文章
-@api.route('/api/article/<int:id>', methods=['GET'])
+@api.route('/article/<int:id>', methods=['GET'])
 def get_article(id):
     if id is None and Article.query.filter_by(id=id).first() is None:
         return jsonify({'status': 400})
@@ -132,7 +132,7 @@ def get_article(id):
 
 
 # 添加文章
-@api.route('/api/article', methods=['POST'])
+@api.route('/article', methods=['POST'])
 def add_article():
     if not request.json or not 'title' in request.json or not 'body' in request.json \
             or not 'body_html' in request.json:
@@ -148,12 +148,12 @@ def add_article():
 
 
 # 更新文章
-@api.route('/api/article/<int:id>', methods=['put'])
+@api.route('/article/<int:id>', methods=['put'])
 def update_article():
     pass
 
 
-@api.route('/api/article/<int:id>', methods=['DELETE'])
+@api.route('/article/<int:id>', methods=['DELETE'])
 def delete_article(id):
     if id is None and Article.query.filter_by(id=id).first() is None:
         return jsonify({'status': 400})
@@ -166,13 +166,13 @@ def delete_article(id):
 
 
 # 角色设置
-@api.route('/api/role', methods=['GET'])
+@api.route('/role', methods=['GET'])
 def get_role():
     roles = Role.query.all()
     return jsonify({'roleData': [role.to_json() for role in roles], 'status': 200})
 
 
-@api.route('/api/role', methods=['POST'])
+@api.route('/role', methods=['POST'])
 def add_role():
     name = request.json['name']
 
@@ -186,7 +186,7 @@ def add_role():
         return jsonify({'status': 400})
 
 
-@api.route('/api/role/<int:id>', methods=['DELETE'])
+@api.route('/role/<int:id>', methods=['DELETE'])
 def delete_role(id):
     if id is None and Role.query.filter_by(id=id).first() is None:
         return jsonify({'status': 400})
@@ -200,7 +200,7 @@ def delete_role(id):
 
 
 # 管理员
-@api.route('/api/admin', methods=['GET'])
+@api.route('/admin', methods=['GET'])
 def get_admin():
     page_size = request.args.get('page_size')
     admins = User.query.filter_by(role_id=ADMINISTRATOR).\
@@ -218,7 +218,7 @@ def get_admin():
     return jsonify({'adminData': result, 'admin_total': admins.total, 'status': 200})
 
 
-@api.route('/api/admin', methods=['POST'])
+@api.route('/admin', methods=['POST'])
 def add_admin():
     if not request.json or not 'name' in request.json or not 'password' in request.json:
         return jsonify({'status': 400})
@@ -239,7 +239,7 @@ def add_admin():
     return jsonify({'flag': 'success', 'status': 200, })
 
 
-@api.route('/api/admin/<int:id>', methods=['DELETE'])
+@api.route('/admin/<int:id>', methods=['DELETE'])
 def delete_admin(id):
     if id is None and User.query.filter_by(id=id).first() is None:
         return jsonify({'status': 400})
@@ -253,7 +253,7 @@ def delete_admin(id):
 
 
 # 评论
-@api.route('/api/comment', methods=['GET'])
+@api.route('/comment', methods=['GET'])
 def get_comment():
     article_id = request.args.get('article')
     page_size = request.args.get('page_size')
@@ -271,7 +271,7 @@ def get_comment():
     return jsonify({'comment': result, 'comment_total': comments.total, 'status': 200})
 
 
-@api.route('/api/comment', methods=['POST'])
+@api.route('/comment', methods=['POST'])
 def add_comment():
     if request.json['id'] and \
             request.json['content'] and request.json['article_id'] is None:
@@ -287,7 +287,7 @@ def add_comment():
 
 
 # 日志
-@api.route('/api/admin_log', methods=['GET'])
+@api.route('/admin_log', methods=['GET'])
 def get_admin_log():
     page_size = request.args.get('page_size')
     logs = Adminlog.query.outerjoin(User).filter_by(role_id=ADMINISTRATOR).\
@@ -302,7 +302,7 @@ def get_admin_log():
                     'status': 200})
 
 
-@api.route('/api/user_log', methods=['GET'])
+@api.route('/user_log', methods=['GET'])
 def get_user_log():
     page_size = request.args.get('page_size')
     logs = Userlog.query.outerjoin(User).filter_by(role_id=ORDINARY).\
@@ -317,7 +317,7 @@ def get_user_log():
                     'status': 200})
 
 
-@api.route('/api/op_log', methods=['GET'])
+@api.route('/op_log', methods=['GET'])
 def get_op_log():
     page_size = request.args.get('page_size')
     logs = Oplog.query.outerjoin(User).add_columns(Oplog.id,
@@ -335,7 +335,7 @@ def get_op_log():
 
 
 # 类别
-@api.route('/api/kind', methods=['GET'])
+@api.route('/kind', methods=['GET'])
 def get_kind():
     page_size = request.args.get('page_size')
     kinds = db.session.query(Kind, func.count(Article.kind_id).label('number'))\
@@ -353,7 +353,7 @@ def get_kind():
     return jsonify({'kind': result, 'kind_total': kinds.total, 'status': 200})
 
 
-@api.route('/api/kind', methods=['POST'])
+@api.route('/kind', methods=['POST'])
 def add_kind():
     if not request.json or 'name' not in request.json:
         return jsonify({'status': 400})
@@ -370,7 +370,7 @@ def add_kind():
                     'status': 200})
 
 
-@api.route('/api/kind/<int:id>', methods=['DELETE'])
+@api.route('/kind/<int:id>', methods=['DELETE'])
 def delete_kind(id):
     if id is None and Kind.query.filter_by(id=id).first() is None:
         return jsonify({'status': 400})
@@ -383,12 +383,12 @@ def delete_kind(id):
     return jsonify({'flag': 'success', 'status': 200})
 
 
-@api.route('/api/kind', methods=['UPDATE'])
+@api.route('/kind', methods=['UPDATE'])
 def up_kind():
     pass
 
 
-@api.route('/api/tag', methods=['GET'])
+@api.route('/tag', methods=['GET'])
 def get_tag():
     page_size = request.args.get('page_size')
     tags = Tag.query.add_columns(Tag.id,
@@ -404,7 +404,7 @@ def get_tag():
     return jsonify({'tag': result, 'tag_total': tags.total, 'status': 200})
 
 
-@api.route('/api/tag', methods=['POST'])
+@api.route('/tag', methods=['POST'])
 def add_tag():
     if not request.json or 'name' not in request.json:
         return jsonify({'status': 400})
@@ -421,7 +421,7 @@ def add_tag():
                     'status': 200})
 
 
-@api.route('/api/tag/<int:id>', methods=['DELETE'])
+@api.route('/tag/<int:id>', methods=['DELETE'])
 def delete_tag(id):
     if id is None and Tag.query.filter_by(id=id).first() is None:
         return jsonify({'status': 400})
@@ -432,3 +432,70 @@ def delete_tag(id):
     db.session.add(op_log)
     db.session.commit()
     return jsonify({'flag': 'success', 'status': 200})
+
+
+# 权限管理
+@api.route('/permission', methods=['GET'])
+def get_permission():
+    page_size = request.args.get('page_size')
+    permissions = Permission.query.\
+        outerjoin(Role).add_columns(Permission.id,
+                                    Permission.name,
+                                    Permission.url,
+                                    Permission.method,
+                                    Permission.create_time,
+                                    Role.role_name).\
+        paginate(int(page_size), per_page=10, error_out=False)
+    result = []
+    for permission in permissions.items:
+        result.append({'id': permission.id,
+                       'name': permission.name,
+                       'url': permission.url,
+                       'role': permission.role_name,
+                       'method': permission.method,
+                       'create_time': permission.create_time.strftime("%Y-%m-%d %H:%M:%S")})
+
+    return jsonify({'permission': result,
+                    'permission_total': permissions.total,
+                    'status': 200})
+
+
+@api.route('/permission', methods=['POST'])
+def add_permission():
+    if not request.json or not 'name' in request.json \
+            or not 'url' in request.json\
+            or not 'method' in request.json\
+            or not 'role' in request.json:
+        return jsonify({'status': 400})
+
+    name = request.json['name']
+    url = request.json['url']
+    method = request.json['method']
+    role = request.json['role']
+
+    result = Permission.query.filter_by(name=name, url=url, method=method, role=role).count()
+    if result is not 0:
+        return jsonify({'flag': 'error', 'reason': '该权限已经存在', 'status': 400})
+
+    permission = Permission(name=name, url=url, method=method, role=role)
+    db.session.add(permission)
+    op_log = Oplog(reason='添加权限')
+    db.session.add(op_log)
+    db.session.commit()
+
+    return jsonify({'flag': 'success', 'status': 200, })
+
+
+@api.route('/permission/<int:id>', methods=['DELETE'])
+def delete_permission(id):
+    if id is None and Permission.query.filter_by(id=id).first() is None:
+        return jsonify({'status': 400})
+
+    permission = Permission.query.filter_by(id=id).first()
+    db.session.delete(permission)
+    op_log = Oplog(reason='删除权限')
+    db.session.add(op_log)
+    db.session.commit()
+    return jsonify({'flag': 'success', 'status': 200})
+
+
