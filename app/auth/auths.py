@@ -51,13 +51,41 @@ class Auth:
         except jwt.InvalidTokenError:
             return "无效的Token"
 
-    # 管理员与普通会员api权限验证
+    # 匿名用户api权限
+    @staticmethod
+    def anonymous_authentication(path, methods):
+        # 匿名访问控制
+        anonymous_authentication = [{
+            'url': '/api/article',
+            'method': 'GET'
+        }, {
+            'url': '/api/comment',
+            'method': 'GET'
+        }, {
+            'url': '/api/kind',
+            'method': 'GET'
+        }, {
+            'url': '/api/tag',
+            'method': 'GET'
+        }]
+        # 去掉多余url参数
+        if path.count('/') > 2:
+            path = path[0:path.rfind('/')]
+        #
+        for item in anonymous_authentication:
+            if item.get('url') == path and item.get('method') == methods:
+                return True
+            else:
+                return False
+
+    # 管理员&&普通会员api权限验证
     @staticmethod
     def route_interception(path, methods, role):
         print(path, methods, role)
         # 去掉多余url参数
         if path.count('/') > 2:
             path = path[0:path.rfind('/')]
+
         permission = Permission.query.\
             filter_by(url=path, method=methods, role=role).first()
         if permission is not None:
@@ -68,7 +96,10 @@ class Auth:
     @staticmethod
     def identify():
         params = request.headers.get('Authorization')
-        if params:
+        path = request.path
+        methods = request.method
+
+        if params is not None and params != 'null':
             auth_token = Auth.decode_token(request.headers.get('Authorization'))
             if isinstance(auth_token, str):
                 return {
@@ -86,7 +117,7 @@ class Auth:
                         'flag': 'error',
                         'msg': '找不到该用户信息'}
                 else:
-                    if Auth.route_interception(request.path, request.method, user.role_id):
+                    if Auth.route_interception(path, methods, user.role_id):
                         result = {
                             'flag': 'success',
                             'msg': '请求成功'
@@ -97,7 +128,12 @@ class Auth:
                             'msg': '无权限'
                         }
         else:
-            result = {
+            if Auth.anonymous_authentication(path, methods):
+                result = {
+                        'flag': 'success',
+                        'msg': '匿名请求成功'}
+            else:
+                result = {
                     'flag': 'error',
                     'msg': '没有提供认证token'}
         return result
