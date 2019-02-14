@@ -1,3 +1,3 @@
 # Blogbackend
 
-api 0.7
+api 1.1
