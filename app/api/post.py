@@ -1,11 +1,12 @@
-from flask import jsonify, request
+from flask import jsonify, request, make_response
+from werkzeug.utils import secure_filename
 from sqlalchemy import func
 from ..auth.auths import Auth
 from app.models import User, Article, Role, \
     Adminlog, Oplog, Userlog, Comment, Kind, Tag, Permission
 from . import api
 from .. import db
-import json
+
 
 # 管理员 与 普通用户
 ADMINISTRATOR = 1
@@ -499,3 +500,23 @@ def delete_permission(id):
     return jsonify({'flag': 'success', 'status': 200})
 
 
+# 图片上传
+@api.route('/image', methods=['POST'])
+def image_upload():
+    image = request.files['file']
+    if image is not None:
+        filename = secure_filename(image.filename)
+        image.save('app/static/' + str(filename))
+        return jsonify({'flag': 'success',
+                        'status': 200,
+                        'image_url': request.base_url + '/' + filename})
+    return jsonify({'flag': 'error', 'status': 400})
+
+
+# 图片获取
+@api.route('/image/<string:filename>', methods=['GET'])
+def show_image(filename):
+    image_data = open('app/static/' + filename, "rb").read()
+    response = make_response(image_data)
+    response.headers['Content-Type'] = 'image/png'
+    return response

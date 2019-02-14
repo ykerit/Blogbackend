@@ -1,8 +1,7 @@
 import os
 
-
 base_dir = os.path.abspath(os.path.dirname(__file__))
-sql_url = os.path.join(base_dir,'data.sqlite')
+sql_url = os.path.join(base_dir, 'data.sqlite')
 
 
 class Config:
@@ -25,6 +24,7 @@ class TestingConfig(Config):
     TESTING = True
 
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + sql_url
+
 
 # 生产环境的配置
 class ProductionConfig(Config):

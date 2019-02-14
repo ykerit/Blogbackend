@@ -67,16 +67,21 @@ class Auth:
         }, {
             'url': '/api/tag',
             'method': 'GET'
+        }, {
+            'url': '/api/image',
+            'method': 'GET'
         }]
         # 去掉多余url参数
         if path.count('/') > 2:
             path = path[0:path.rfind('/')]
-        #
+        # 返回结果
+        value = False
         for item in anonymous_authentication:
-            if item.get('url') == path and item.get('method') == methods:
-                return True
+            if path in item.values() and methods in item.values():
+                value = True
             else:
-                return False
+                value = False
+        return value
 
     # 管理员&&普通会员api权限验证
     @staticmethod

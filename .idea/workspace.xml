@@ -3,8 +3,13 @@
   <component name="ChangeListManager">
     <list default="true" id="2d3c6dd2-8bcc-4f2c-99f4-f77edf25701b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/api/post.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/post.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/auth/auths.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/auth/auths.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data.sqlite" beforeDir="false" afterPath="$PROJECT_DIR$/data.sqlite" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/manage.py" beforeDir="false" afterPath="$PROJECT_DIR$/manage.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -13,9 +18,9 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/Blog$test.coverage" NAME="test Coverage Results" MODIFIED="1545840599655" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/Blog$test.coverage" NAME="test Coverage Results" MODIFIED="1549898813592" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Blog$Flask__manage_py_.coverage" NAME="Flask (manage.py) Coverage Results" MODIFIED="1545840677768" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Blog$manage.coverage" NAME="manage Coverage Results" MODIFIED="1548153888449" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Blog$manage.coverage" NAME="manage Coverage Results" MODIFIED="1550146334685" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Blog$models.coverage" NAME="models Coverage Results" MODIFIED="1541142537871" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Blog$Flask__app_py___1_.coverage" NAME="Flask (app.py) (1) Coverage Results" MODIFIED="1541163874603" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/Blog$Flask__app_py_.coverage" NAME="Flask (app.py) Coverage Results" MODIFIED="1541165350714" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
@@ -56,11 +61,11 @@
     <session id="-34234656">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="87" />
+          <entry key="project.closed" value="98" />
           <entry key="project.open.time.0" value="2" />
           <entry key="project.open.time.1" value="2" />
           <entry key="project.open.time.10" value="10" />
-          <entry key="project.open.time.11" value="2" />
+          <entry key="project.open.time.11" value="3" />
           <entry key="project.open.time.12" value="2" />
           <entry key="project.open.time.13" value="2" />
           <entry key="project.open.time.16" value="1" />
@@ -68,12 +73,12 @@
           <entry key="project.open.time.19" value="1" />
           <entry key="project.open.time.4" value="1" />
           <entry key="project.open.time.5" value="3" />
-          <entry key="project.open.time.6" value="12" />
-          <entry key="project.open.time.7" value="25" />
+          <entry key="project.open.time.6" value="13" />
+          <entry key="project.open.time.7" value="27" />
           <entry key="project.open.time.76" value="1" />
-          <entry key="project.open.time.8" value="12" />
-          <entry key="project.open.time.9" value="11" />
-          <entry key="project.opened" value="89" />
+          <entry key="project.open.time.8" value="17" />
+          <entry key="project.open.time.9" value="13" />
+          <entry key="project.opened" value="100" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
@@ -82,15 +87,15 @@
           <entry key="cell" value="31" />
           <entry key="dummy" value="26" />
           <entry key="html" value="29" />
-          <entry key="py" value="20003" />
-          <entry key="txt" value="246" />
+          <entry key="py" value="20536" />
+          <entry key="txt" value="248" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="HTML" value="29" />
-          <entry key="PLAIN_TEXT" value="272" />
-          <entry key="Python" value="20026" />
+          <entry key="PLAIN_TEXT" value="274" />
+          <entry key="Python" value="20559" />
           <entry key="SQL" value="4" />
           <entry key="Scratch" value="31" />
         </counts>
@@ -103,28 +108,30 @@
           <entry key="comment" value="12" />
           <entry key="db" value="1" />
           <entry key="html" value="5" />
+          <entry key="jpg" value="4" />
           <entry key="kind" value="3" />
           <entry key="md" value="2" />
-          <entry key="permission" value="3" />
-          <entry key="py" value="233" />
-          <entry key="pyi" value="1" />
+          <entry key="permission" value="4" />
+          <entry key="py" value="245" />
+          <entry key="pyi" value="2" />
           <entry key="roles" value="5" />
           <entry key="sql" value="11" />
           <entry key="sqlite_master" value="6" />
           <entry key="tag" value="2" />
-          <entry key="txt" value="6" />
+          <entry key="txt" value="8" />
           <entry key="user" value="15" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Database Element" value="62" />
+          <entry key="Database Element" value="63" />
           <entry key="HTML" value="5" />
+          <entry key="Image" value="4" />
           <entry key="Ini" value="1" />
           <entry key="Markdown" value="2" />
-          <entry key="PLAIN_TEXT" value="7" />
-          <entry key="Python" value="233" />
-          <entry key="PythonStub" value="1" />
+          <entry key="PLAIN_TEXT" value="9" />
+          <entry key="Python" value="245" />
+          <entry key="PythonStub" value="2" />
           <entry key="SQL" value="7" />
           <entry key="Scratch" value="4" />
           <entry key="UML" value="1" />
@@ -140,48 +147,53 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/api/post.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-8554">
-              <caret line="9" selection-start-line="9" selection-end-line="9" selection-end-column="12" />
+            <state relative-caret-position="228">
+              <caret line="6" column="17" lean-forward="true" selection-start-line="6" selection-start-column="17" selection-end-line="6" selection-end-column="17" />
               <folding>
-                <element signature="e#0#34#0" expanded="true" />
-                <marker date="1548079249189" expanded="true" signature="294:565" ph="..." />
-                <marker date="1548079249189" expanded="true" signature="329:565" ph="..." />
-                <marker date="1548079249189" expanded="true" signature="618:715" ph="..." />
-                <marker date="1548079249189" expanded="true" signature="11323:12003" ph="..." />
-                <marker date="1548079249189" expanded="true" signature="12056:12531" ph="..." />
-                <marker date="1548079249189" expanded="true" signature="12056:12533" ph="..." />
-                <marker date="1548079249189" expanded="true" signature="13090:13091" ph="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/app/auth/auths.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1366">
-              <caret line="126" column="36" lean-forward="true" selection-start-line="126" selection-start-column="36" selection-end-line="126" selection-end-column="36" />
-              <folding>
-                <element signature="e#0#34#0" expanded="true" />
-                <marker date="1548153875136" expanded="true" signature="1426:2082" ph="..." />
+                <marker date="1550146334677" expanded="true" signature="341:612" ph="..." />
+                <marker date="1550146334677" expanded="true" signature="376:612" ph="..." />
+                <marker date="1550146334677" expanded="true" signature="665:762" ph="..." />
+                <marker date="1550146334677" expanded="true" signature="760:762" ph="..." />
+                <marker date="1550146334677" expanded="true" signature="11370:12050" ph="..." />
+                <marker date="1550146334677" expanded="true" signature="12103:12578" ph="..." />
+                <marker date="1550146334677" expanded="true" signature="12103:12580" ph="..." />
+                <marker date="1550146334677" expanded="true" signature="13137:13138" ph="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/models.py">
+        <entry file="file://$PROJECT_DIR$/app/__init__.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1634">
-              <caret line="46" column="13" lean-forward="true" selection-start-line="46" selection-start-column="13" selection-end-line="46" selection-end-column="13" />
+            <state relative-caret-position="190">
+              <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
               <folding>
-                <element signature="e#0#18#0" expanded="true" />
-                <marker date="1548078075088" expanded="true" signature="183:212" ph="..." />
-                <marker date="1548078075088" expanded="true" signature="1924:2257" ph="..." />
-                <marker date="1548078075088" expanded="true" signature="4385:4639" ph="..." />
+                <element signature="e#0#23#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/requirements.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="38">
+              <caret line="1" column="14" lean-forward="true" selection-start-line="1" selection-start-column="14" selection-end-line="1" selection-end-column="14" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/manage.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="152">
+              <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="4" />
+              <folding>
+                <element signature="e#0#30#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -209,6 +221,9 @@
       <find>db.session.query(exists().where</find>
       <find>db.session.quer</find>
       <find>uuid</find>
+      <find>prin</find>
+      <find>pri</find>
+      <find>pr</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -251,18 +266,18 @@
         <option value="$PROJECT_DIR$/app/admin/views.py" />
         <option value="$PROJECT_DIR$/app/main/views.py" />
         <option value="$PROJECT_DIR$/app/api/error.py" />
-        <option value="$PROJECT_DIR$/config.py" />
-        <option value="$PROJECT_DIR$/tests/test.py" />
         <option value="$PROJECT_DIR$/app/main/__init__.py" />
         <option value="$PROJECT_DIR$/app/api/auth.py" />
         <option value="$PROJECT_DIR$/app/api/__init__.py" />
         <option value="$PROJECT_DIR$/app/auth/__init__.py" />
-        <option value="$PROJECT_DIR$/requirements.txt" />
         <option value="$PROJECT_DIR$/manage.py" />
-        <option value="$PROJECT_DIR$/app/__init__.py" />
+        <option value="$PROJECT_DIR$/config.py" />
         <option value="$PROJECT_DIR$/app/models.py" />
-        <option value="$PROJECT_DIR$/app/api/post.py" />
         <option value="$PROJECT_DIR$/app/auth/auths.py" />
+        <option value="$PROJECT_DIR$/tests/test.py" />
+        <option value="$PROJECT_DIR$/requirements.txt" />
+        <option value="$PROJECT_DIR$/app/__init__.py" />
+        <option value="$PROJECT_DIR$/app/api/post.py" />
       </list>
     </option>
   </component>
@@ -273,9 +288,10 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="950" />
+    <option name="x" value="-9" />
+    <option name="y" value="-9" />
     <option name="width" value="975" />
-    <option name="height" value="1050" />
+    <option name="height" value="860" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -315,11 +331,6 @@
               <item name="Blog" type="b2602c69:ProjectViewProjectNode" />
               <item name="Blog" type="462c0819:PsiDirectoryNode" />
               <item name="app" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Blog" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Blog" type="462c0819:PsiDirectoryNode" />
-              <item name="manage.py" type="8704e2dd:PyFileNode" />
             </path>
           </expand>
           <select />
@@ -368,6 +379,7 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\some yuan\PycharmProjects\Blog\app" />
       <recent name="C:\Users\some yuan\PycharmProjects\Blog" />
       <recent name="C:\Users\some yuan\PycharmProjects\Blog\BackEnd" />
       <recent name="C:\Users\some yuan\PycharmProjects\Blog\model" />
@@ -521,8 +533,8 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.manage" />
-        <item itemvalue="Flask server.Flask (manage.py)" />
         <item itemvalue="Python.test" />
+        <item itemvalue="Flask server.Flask (manage.py)" />
         <item itemvalue="Python.app" />
         <item itemvalue="Python.models" />
       </list>
@@ -581,7 +593,14 @@
       <option name="project" value="LOCAL" />
       <updated>1548081860755</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="1.0 add anonymous_authentication">
+      <created>1548155438752</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1548155438753</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TodoView">
@@ -594,15 +613,15 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
+    <frame x="-8" y="-8" width="1616" height="876" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Structure" order="0" sideWeight="0.5008347" side_tool="true" weight="0.13646056" />
       <window_info id="Favorites" order="1" side_tool="true" />
-      <window_info active="true" x="953" y="250" width="136" height="540" id="Project" order="2" sideWeight="0.50053024" visible="true" weight="0.14343163" />
+      <window_info x="953" y="250" width="136" height="540" id="Project" order="2" sideWeight="0.50053024" visible="true" weight="0.17095116" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32850942" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49798927" visible="true" weight="0.21997106" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49798927" visible="true" weight="0.43878955" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3984799" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -619,7 +638,7 @@
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="SciView" order="3" weight="0.3297587" />
-      <window_info anchor="right" id="Database" order="4" sideWeight="0.4994698" visible="true" weight="0.11595174" />
+      <window_info anchor="right" id="Database" order="4" sideWeight="0.4994698" visible="true" weight="0.12017995" />
     </layout>
     <layout-to-restore>
       <window_info id="Structure" order="0" sideWeight="0.5008347" side_tool="true" weight="0.13646056" />
@@ -660,12 +679,10 @@
     <MESSAGE value="0.5 add comment &amp;&amp; fix datatime build add more tables query" />
     <MESSAGE value="0.6 add JWT &amp;&amp; rebuild auth model &amp;&amp; add tag and kind" />
     <MESSAGE value="0.7 add router check &amp;&amp; permission check" />
-    <option name="LAST_COMMIT_MESSAGE" value="0.7 add router check &amp;&amp; permission check" />
+    <MESSAGE value="1.0 add anonymous_authentication" />
+    <option name="LAST_COMMIT_MESSAGE" value="1.0 add anonymous_authentication" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/app/model/__init__.py" />
-    <entry file="file://$PROJECT_DIR$/src/Controller/controller.py" />
-    <entry file="file://$PROJECT_DIR$/app/Controller/__init__.py" />
     <entry file="file://$PROJECT_DIR$/app/Controller/db_manage.py" />
     <entry file="file://$PROJECT_DIR$/app/Controller/router.py" />
     <entry file="file://$PROJECT_DIR$/app/model/article.py" />
@@ -738,13 +755,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/templates/user.html" />
-    <entry file="file://$PROJECT_DIR$/config.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="13" lean-forward="true" selection-start-line="13" selection-end-line="13" />
-        </state>
-      </provider>
-    </entry>
     <entry file="das://c8b46fa1-76eb-4e4b-8665-45777f7d3921/schema/main/table/auth.sql">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="27">
@@ -841,9 +851,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/api/auth.py" />
-    <entry file="file://$PROJECT_DIR$/tests/test.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/tests/__init__.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -868,30 +875,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/requirements.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="418">
-          <caret line="11" column="11" lean-forward="true" selection-start-line="11" selection-start-column="11" selection-end-line="11" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/manage.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="228">
-          <caret line="7" lean-forward="true" selection-start-line="7" selection-end-line="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="695">
-          <caret line="38" column="14" lean-forward="true" selection-start-line="38" selection-start-column="14" selection-end-line="38" selection-end-column="14" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python37/Lib/collections/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="68">
@@ -913,43 +896,83 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/app/static/1.jpg" />
+    <entry file="file://$PROJECT_DIR$/config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="546">
+          <caret line="32" selection-start-line="32" selection-end-line="32" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/app/models.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1634">
-          <caret line="46" column="13" lean-forward="true" selection-start-line="46" selection-start-column="13" selection-end-line="46" selection-end-column="13" />
+        <state relative-caret-position="-898">
+          <caret line="57" column="8" lean-forward="true" selection-start-line="57" selection-start-column="8" selection-end-line="57" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/static/E44M1M2DJ396.jpg" />
+    <entry file="file://$APPLICATION_HOME_DIR$/helpers/typeshed/stdlib/3/typing.pyi">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="164">
+          <caret line="344" column="8" selection-start-line="344" selection-start-column="8" selection-end-line="344" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/auth/auths.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="413">
+          <caret line="55" column="8" selection-start-line="55" selection-start-column="8" selection-end-line="55" selection-end-column="8" />
           <folding>
-            <element signature="e#0#18#0" expanded="true" />
-            <marker date="1548078075088" expanded="true" signature="183:212" ph="..." />
-            <marker date="1548078075088" expanded="true" signature="1924:2257" ph="..." />
-            <marker date="1548078075088" expanded="true" signature="4385:4639" ph="..." />
+            <element signature="e#0#34#0" expanded="true" />
+            <marker date="1549898963553" expanded="true" signature="1426:2199" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/manage.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="152">
+          <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="4" />
+          <folding>
+            <element signature="e#0#30#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/requirements.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="38">
+          <caret line="1" column="14" lean-forward="true" selection-start-line="1" selection-start-column="14" selection-end-line="1" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="190">
+          <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/api/post.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-8554">
-          <caret line="9" selection-start-line="9" selection-end-line="9" selection-end-column="12" />
+        <state relative-caret-position="228">
+          <caret line="6" column="17" lean-forward="true" selection-start-line="6" selection-start-column="17" selection-end-line="6" selection-end-column="17" />
           <folding>
-            <element signature="e#0#34#0" expanded="true" />
-            <marker date="1548079249189" expanded="true" signature="294:565" ph="..." />
-            <marker date="1548079249189" expanded="true" signature="329:565" ph="..." />
-            <marker date="1548079249189" expanded="true" signature="618:715" ph="..." />
-            <marker date="1548079249189" expanded="true" signature="11323:12003" ph="..." />
-            <marker date="1548079249189" expanded="true" signature="12056:12531" ph="..." />
-            <marker date="1548079249189" expanded="true" signature="12056:12533" ph="..." />
-            <marker date="1548079249189" expanded="true" signature="13090:13091" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/auth/auths.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1366">
-          <caret line="126" column="36" lean-forward="true" selection-start-line="126" selection-start-column="36" selection-end-line="126" selection-end-column="36" />
-          <folding>
-            <element signature="e#0#34#0" expanded="true" />
-            <marker date="1548153875136" expanded="true" signature="1426:2082" ph="..." />
+            <marker date="1550146334677" expanded="true" signature="341:612" ph="..." />
+            <marker date="1550146334677" expanded="true" signature="376:612" ph="..." />
+            <marker date="1550146334677" expanded="true" signature="665:762" ph="..." />
+            <marker date="1550146334677" expanded="true" signature="760:762" ph="..." />
+            <marker date="1550146334677" expanded="true" signature="11370:12050" ph="..." />
+            <marker date="1550146334677" expanded="true" signature="12103:12578" ph="..." />
+            <marker date="1550146334677" expanded="true" signature="12103:12580" ph="..." />
+            <marker date="1550146334677" expanded="true" signature="13137:13138" ph="..." />
           </folding>
         </state>
       </provider>
