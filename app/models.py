@@ -49,6 +49,12 @@ class Permission(db.Model):
                 'url': '/api/permission',
                 'method': 'POST',
                 'role': 1
+            },
+            {
+                'name': '插入图片',
+                'url': '/api/image',
+                'method': 'POST',
+                'role': 1
             }
         ]
         for i in permissions:
