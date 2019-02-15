@@ -6,6 +6,7 @@ sql_url = os.path.join(base_dir, 'data.sqlite')
 
 class Config:
     SQLALCHEMY_COMMIT_ON_TEARDOWN = False
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
 
     @staticmethod
     def init_app(app):
