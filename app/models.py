@@ -162,10 +162,10 @@ class Role(db.Model):
     def insert_roles():
         roles = ['管理员', '普通用户']
         for r in roles:
-            role = Role.query.filter_by(role_name=r).first()
-            if role is None:
+            result = Role.query.filter_by(role_name=r).count()
+            if result is not 0:
                 role = Role(role_name=r)
-            db.session.add(role)
+                db.session.add(role)
         db.session.commit()
 
     def __repr__(self):
@@ -203,10 +203,10 @@ class User(db.Model, UserMixin):
 
     @staticmethod
     def insert_admin():
-        admin = User.query.filter_by(name='yker').first()
-        if admin is None:
+        result = User.query.filter_by(name='yker').count()
+        if result is not 0:
             admin = User(name='yker', password='yker123', role=1)
-        db.session.add(admin)
+            db.session.add(admin)
         db.session.commit()
 
     def __repr__(self):
