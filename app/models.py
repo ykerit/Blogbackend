@@ -58,8 +58,10 @@ class Permission(db.Model):
             }
         ]
         for i in permissions:
-            permission = Permission(name=i['name'], url=i['url'], method=i['method'], role=i['role'])
-            db.session.add(permission)
+            result = Permission.query.filter_by(name=i['name']).count()
+            if result is 0:
+                permission = Permission(name=i['name'], url=i['url'], method=i['method'], role=i['role'])
+                db.session.add(permission)
         db.session.commit()
 
 
@@ -163,7 +165,7 @@ class Role(db.Model):
         roles = ['管理员', '普通用户']
         for r in roles:
             result = Role.query.filter_by(role_name=r).count()
-            if result is not 0:
+            if result is 0:
                 role = Role(role_name=r)
                 db.session.add(role)
         db.session.commit()
@@ -204,7 +206,7 @@ class User(db.Model, UserMixin):
     @staticmethod
     def insert_admin():
         result = User.query.filter_by(name='yker').count()
-        if result is not 0:
+        if result is 0:
             admin = User(name='yker', password='yker123', role=1)
             db.session.add(admin)
         db.session.commit()
