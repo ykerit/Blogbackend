@@ -1,4 +1,4 @@
-from flask import jsonify, request
+from flask import jsonify, request, g
 import jwt
 from datetime import datetime, timedelta
 from app.models import User, Userlog, Oplog, Permission
@@ -75,18 +75,18 @@ class Auth:
         if path.count('/') > 2:
             path = path[0:path.rfind('/')]
         # 返回结果
-        value = False
         for item in anonymous_authentication:
-            if path in item.values() and methods in item.values():
-                value = True
+            print(path, methods)
+            if path == item['url'] and methods == item['method']:
+                return True
             else:
-                value = False
-        return value
+                continue
+        return False
 
     # 管理员&&普通会员api权限验证
     @staticmethod
     def route_interception(path, methods, role):
-        print(path, methods, role)
+        # print(path, methods, role)
         # 去掉多余url参数
         if path.count('/') > 2:
             path = path[0:path.rfind('/')]
@@ -122,7 +122,13 @@ class Auth:
                         'flag': 'error',
                         'msg': '找不到该用户信息'}
                 else:
-                    if Auth.route_interception(path, methods, user.role_id):
+                    g.user_id = user.id
+                    if user.role_id == ADMINISTRATOR:
+                        result = {
+                            'flag': 'success',
+                            'msg': '请求成功'
+                        }
+                    elif Auth.route_interception(path, methods, user.role_id):
                         result = {
                             'flag': 'success',
                             'msg': '请求成功'
@@ -158,6 +164,7 @@ def login():
                         'id': user.id,
                         'name': request.form.get('name'),
                         'token': str(Auth.encode_token(user.name), encoding='utf-8'),
+                        'image_url': user.face,
                         'status': 200})
     return jsonify({'is_authorization': 'false', 'status': 400})
 
