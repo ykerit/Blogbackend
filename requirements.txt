@@ -1,4 +1,3 @@
-PyJWT
 alembic==1.0.5
 Click==7.0
 Flask==1.0.2
@@ -8,8 +7,11 @@ Flask-Migrate==2.3.1
 Flask-Script==2.0.6
 Flask-SQLAlchemy==2.3.2
 itsdangerous==1.1.0
+Jinja2==2.10
 Mako==1.0.7
 MarkupSafe==1.0
+Pillow==5.4.1
+PyJWT==1.7.1
 six==1.11.0
 SQLAlchemy==1.2.13
 Werkzeug==0.14.1

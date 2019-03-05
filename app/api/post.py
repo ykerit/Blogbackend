@@ -1,5 +1,7 @@
-from flask import jsonify, request, make_response
+from flask import jsonify, request, send_file, g
+from PIL import Image
 from werkzeug.utils import secure_filename
+import time
 from sqlalchemy import func
 from ..auth.auths import Auth
 from app.models import User, Article, Role, \
@@ -128,7 +130,7 @@ def get_article(id):
     for article in articles:
         result.append({'id': article.id, 'title': article.title,
                        'create_time': article.create_time.strftime("%Y-%m-%d %H:%M:%S"),
-                       'html': article.body_html})
+                       'preview': article.body_html})
     return jsonify({'articleContent': result, 'status': 200})
 
 
@@ -258,6 +260,7 @@ def delete_admin(id):
 def get_comment():
     article_id = request.args.get('article')
     page_size = request.args.get('page_size')
+    print(type(page_size))
     if page_size is None and Comment.query.filter_by(article_id=article_id).all() is None:
         return jsonify({'status': 400})
     comments = Comment.query.filter_by(article_id=article_id).outerjoin(User)\
@@ -504,19 +507,40 @@ def delete_permission(id):
 @api.route('/image', methods=['POST'])
 def image_upload():
     image = request.files['file']
+    image_type = request.args.get('type')
     if image is not None:
-        filename = secure_filename(image.filename)
-        image.save('app/static/' + str(filename))
-        return jsonify({'flag': 'success',
-                        'status': 200,
-                        'image_url': request.base_url + '/' + filename})
+        if image_type == 'avatar':
+            filename = secure_filename(image.filename)
+            filename = str(time.time()) + '.'+filename.split('.')[-1]
+            image.save('app/static/' + filename)
+            User.query.filter_by(id=g.user_id).update({'face': request.base_url + '/' + filename + '?w=100&h=100'})
+            user_log = Userlog(user_id=g.user_id)
+            db.session.add(user_log)
+            db.session.commit()
+            return jsonify({'flag': 'success',
+                            'status': 200,
+                            'image_url': request.base_url + '/' + filename + '?w=100&h=100'})
+        elif image_type == 'markdown':
+            filename = secure_filename(image.filename)
+            image.save('app/static/' + str(filename))
+            return jsonify({'flag': 'success',
+                            'status': 200,
+                            'image_url': request.base_url + '/' + filename + '?w=400&h=400'})
     return jsonify({'flag': 'error', 'status': 400})
 
 
 # 图片获取
 @api.route('/image/<string:filename>', methods=['GET'])
 def show_image(filename):
-    image_data = open('app/static/' + filename, "rb").read()
-    response = make_response(image_data)
-    response.headers['Content-Type'] = 'image/png'
-    return response
+    from io import BytesIO
+    width = int(request.args.get('w'))
+    height = int(request.args.get('h'))
+    img_io = BytesIO()
+    img = Image.open('app/static/' + filename)
+    if img:
+        ret = img.resize((width, height), Image.ANTIALIAS)
+        ret.save(img_io, 'JPEG')
+        img_io.seek(0)
+        return send_file(img_io,
+                         mimetype='image/jpeg',
+                         cache_timeout=604800)
