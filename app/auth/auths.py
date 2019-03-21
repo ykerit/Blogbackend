@@ -70,13 +70,18 @@ class Auth:
         }, {
             'url': '/api/image',
             'method': 'GET'
+        }, {
+            'url': '/api/classification',
+            'method': 'GET'
+        }, {
+            'url': '/api/filed',
+            'method': 'GET'
         }]
         # 去掉多余url参数
         if path.count('/') > 2:
             path = path[0:path.rfind('/')]
         # 返回结果
         for item in anonymous_authentication:
-            print(path, methods)
             if path == item['url'] and methods == item['method']:
                 return True
             else:
@@ -86,7 +91,6 @@ class Auth:
     # 管理员&&普通会员api权限验证
     @staticmethod
     def route_interception(path, methods, role):
-        # print(path, methods, role)
         # 去掉多余url参数
         if path.count('/') > 2:
             path = path[0:path.rfind('/')]
@@ -105,48 +109,62 @@ class Auth:
         methods = request.method
 
         if params is not None and params != 'null':
-            auth_token = Auth.decode_token(request.headers.get('Authorization'))
+
+            # 是否为字符串
+            auth_token = Auth.decode_token(params)
             if isinstance(auth_token, str):
                 return {
                     'flag': 'error',
-                    'msg': auth_token
+                    'msg': auth_token,
+                    'status': 400
                 }
             if not auth_token or auth_token['headers']['typ'] != 'JWT':
                 result = {
                     'flag': 'error',
-                    'msg': '请传递正确的验证头信息'}
+                    'msg': '请传递正确的验证头信息',
+                    'status': 400
+                }
             else:
                 user = User.query.filter_by(name=auth_token['data']['user_name']).first()
                 if user is None:
                     result = {
                         'flag': 'error',
-                        'msg': '找不到该用户信息'}
+                        'msg': '找不到该用户信息',
+                        'status': 400
+                    }
                 else:
                     g.user_id = user.id
                     if user.role_id == ADMINISTRATOR:
                         result = {
                             'flag': 'success',
-                            'msg': '请求成功'
+                            'msg': '请求成功',
+                            'status': 200
                         }
                     elif Auth.route_interception(path, methods, user.role_id):
                         result = {
                             'flag': 'success',
-                            'msg': '请求成功'
+                            'msg': '请求成功',
+                            'status': 200
                         }
                     else:
                         result = {
                             'flag': 'error',
-                            'msg': '无权限'
+                            'msg': '无权限',
+                            'status': 400
                         }
         else:
             if Auth.anonymous_authentication(path, methods):
                 result = {
                         'flag': 'success',
-                        'msg': '匿名请求成功'}
+                        'msg': '匿名请求成功',
+                        'status': 200
+                }
             else:
                 result = {
                     'flag': 'error',
-                    'msg': '没有提供认证token'}
+                    'msg': '没有提供认证token',
+                    'status': 400
+                }
         return result
 
 
@@ -170,23 +188,22 @@ def login():
 
 
 # 注册
-@auth.route('/auth/register', methods=['POST'])
+@auth.route('/register', methods=['POST'])
 def register():
     name = request.form.get('name')
     password = request.form.get('password')
     if name and password:
         record = User.query.filter_by(name=name).count()
-        if record is 0:
+        if record == 0:
             user = User(name=name, password=password, role=ORDINARY)
             db.session.add(user)
-            db.session.commit()
             op_log = Oplog(reason='用户注册')
             db.session.add(op_log)
             db.session.commit()
             users = User.query.filter_by(name=request.form.get('name')).first()
             return jsonify({'is_authorization': 'true',
                             'name': users.name,
-                            'token': Auth.encode_token(users.name),
+                            'token': str(Auth.encode_token(users.name), encoding='utf-8'),
                             'status': 200})
         return jsonify({'flag': 'error',
                         'reason': '该账号已经注册',

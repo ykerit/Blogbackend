@@ -14,7 +14,7 @@ def set_info(body):
     s = ''
     for str in info:
         s = s + str.strip('#|*`')
-    return s.strip().replace(' ', ',')
+    return s.strip().replace(' ', ',') + '...'
 
 
 # 权限
@@ -65,19 +65,6 @@ class Permission(db.Model):
         db.session.commit()
 
 
-# 标签
-class Tag(db.Model):
-    __tablename__ = 'tag'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True)
-    create_time = db.Column(db.DateTime, index=True)
-    article = db.relationship("Article", backref='tag')
-
-    def __init__(self, name):
-        self.name = name
-        self.create_time = gen_time()
-
-
 # 类别
 class Kind(db.Model):
     __tablename__ = 'kind'
@@ -90,6 +77,13 @@ class Kind(db.Model):
         self.create_time = gen_time()
         self.name = name
 
+    # json序列
+    def to_json(self):
+        dict = self.__dict__
+        if "_sa_instance_state" in dict:
+            del dict["_sa_instance_state"]
+        return dict
+
 
 # 文章
 class Article(db.Model):
@@ -100,18 +94,20 @@ class Article(db.Model):
     info = db.Column(db.Text)
     body = db.Column(db.Text)
     body_html = db.Column(db.Text)
+    tag = db.Column(db.String(128))
     create_time = db.Column(db.DateTime, index=True)
     star = db.Column(db.SmallInteger)
-    tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'))
     kind_id = db.Column(db.Integer, db.ForeignKey('kind.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     comments = db.relationship("Comment", backref='article')
 
-    def __init__(self, title, body, body_html):
+    def __init__(self, title, body, body_html, kind, tag):
         self.title = title
         self.body = body
         self.body_html = body_html
         self.info = set_info(body)
+        self.kind_id = kind
+        self.tag = tag
         self.create_time = gen_time()
         # self.kind = kind
 

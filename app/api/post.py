@@ -5,10 +5,9 @@ import time
 from sqlalchemy import func
 from ..auth.auths import Auth
 from app.models import User, Article, Role, \
-    Adminlog, Oplog, Userlog, Comment, Kind, Tag, Permission
+    Adminlog, Oplog, Userlog, Comment, Kind, Permission
 from . import api
 from .. import db
-
 
 # 管理员 与 普通用户
 ADMINISTRATOR = 1
@@ -37,17 +36,31 @@ def before_request():
 @api.route('/user', methods=['GET'])
 def get_user():
     page_size = request.args.get('page_size')
-    users = User.query.filter_by(role_id=ORDINARY).\
+    users = User.query.filter_by(role_id=ORDINARY). \
         outerjoin(Role).add_columns(User.id,
                                     User.name,
                                     User.create_time,
-                                    Role.role_name).\
+                                    Role.role_name). \
         paginate(int(page_size), per_page=10, error_out=False)
     result = []
     for user in users.items:
         result.append({'id': user.id, 'name': user.name, 'role': user.role_name,
+                       'face': user.face,
                        'create_time': user.create_time.strftime("%Y-%m-%d %H:%M:%S")})
     return jsonify({'userData': result, 'user_total': users.total, 'status': 200})
+
+
+@api.route('/user/<int:id>', methods=['GET'])
+def get_user_by_id(id):
+    if id is None and User.query.filter_by(id=id).first() is None:
+        return jsonify({'status': 400})
+
+    user = User.query.filter_by(id=id).first()
+    return jsonify({'id': user.id, 'name': user.name,
+                    'face': user.face,
+                    'create_time': user.create_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    'status': 200
+                    })
 
 
 @api.route('/user', methods=['POST'])
@@ -97,7 +110,7 @@ def get_all_article():
     page_size = request.args.get('page_size')
 
     articles = db.session.query(Article, func.count(Comment.article_id).
-                                label('number')).outerjoin(Comment).\
+                                label('number')).outerjoin(Comment). \
         group_by(Article.id).add_columns(Article.id,
                                          Article.title,
                                          Article.create_time,
@@ -110,7 +123,7 @@ def get_all_article():
         result.append({
             'id': article.id,
             'title': article.title,
-            'info': article.info,
+            'description': article.info,
             'star': article.star,
             'number': article.number,
             'create_time': article.create_time.strftime("%Y-%m-%d %H:%M:%S")
@@ -134,15 +147,35 @@ def get_article(id):
     return jsonify({'articleContent': result, 'status': 200})
 
 
+@api.route('/filed', methods=['GET'])
+def get_filed():
+    articles = Article.query.add_columns(Article.id,
+                                         Article.title,
+                                         Article.create_time,
+                                         Article.info
+                                         )
+    result = []
+    for article in articles:
+        result.append({'id': article.id, 'title': article.title,
+                       'description': article.info,
+                       'create_time': article.create_time.strftime("%Y-%m-%d %H:%M:%S")})
+    return jsonify({'timeline': result, 'status': 200})
+
+
 # 添加文章
 @api.route('/article', methods=['POST'])
 def add_article():
     if not request.json or not 'title' in request.json or not 'body' in request.json \
-            or not 'body_html' in request.json:
+            or not 'body_html' in request.json or not 'kind' in request.json\
+            or not 'tag' in request.json:
         return jsonify({'status': 400})
 
-    article = Article(title=request.json['title'], body=request.json['body'],
-                      body_html=request.json['body_html'])
+    article = Article(title=request.json['title'],
+                      body=request.json['body'],
+                      body_html=request.json['body_html'],
+                      kind=request.json['kind'],
+                      tag=request.json['tag'])
+
     op_log = Oplog(reason='发布文章')
     db.session.add(article)
     db.session.add(op_log)
@@ -206,11 +239,11 @@ def delete_role(id):
 @api.route('/admin', methods=['GET'])
 def get_admin():
     page_size = request.args.get('page_size')
-    admins = User.query.filter_by(role_id=ADMINISTRATOR).\
+    admins = User.query.filter_by(role_id=ADMINISTRATOR). \
         outerjoin(Role).add_columns(User.id,
                                     User.name,
                                     User.create_time,
-                                    Role.role_name).\
+                                    Role.role_name). \
         paginate(int(page_size), per_page=10, error_out=False)
     result = []
     for admin in admins.items:
@@ -260,10 +293,9 @@ def delete_admin(id):
 def get_comment():
     article_id = request.args.get('article')
     page_size = request.args.get('page_size')
-    print(type(page_size))
     if page_size is None and Comment.query.filter_by(article_id=article_id).all() is None:
         return jsonify({'status': 400})
-    comments = Comment.query.filter_by(article_id=article_id).outerjoin(User)\
+    comments = Comment.query.filter_by(article_id=article_id).outerjoin(User) \
         .add_columns(
         Comment.content, Comment.create_time, User.name, User.face
     ).order_by(Comment.create_time.desc()).paginate(int(page_size), per_page=20, error_out=False)
@@ -294,11 +326,11 @@ def add_comment():
 @api.route('/admin_log', methods=['GET'])
 def get_admin_log():
     page_size = request.args.get('page_size')
-    logs = Adminlog.query.outerjoin(User).filter_by(role_id=ADMINISTRATOR).\
+    logs = Adminlog.query.outerjoin(User).filter_by(role_id=ADMINISTRATOR). \
         add_columns(Adminlog.id,
                     User.name,
                     Adminlog.ip,
-                    Adminlog.create_time).\
+                    Adminlog.create_time). \
         paginate(int(page_size), per_page=10, error_out=False)
 
     return jsonify({'AdminLog': gen_json(logs.items),
@@ -309,11 +341,11 @@ def get_admin_log():
 @api.route('/user_log', methods=['GET'])
 def get_user_log():
     page_size = request.args.get('page_size')
-    logs = Userlog.query.outerjoin(User).filter_by(role_id=ORDINARY).\
+    logs = Userlog.query.outerjoin(User).filter_by(role_id=ORDINARY). \
         add_columns(Userlog.id,
                     User.name,
                     Userlog.ip,
-                    Userlog.create_time).\
+                    Userlog.create_time). \
         paginate(int(page_size), per_page=10, error_out=False)
 
     return jsonify({'UserLog': gen_json(logs.items),
@@ -328,7 +360,7 @@ def get_op_log():
                                                    User.name,
                                                    Oplog.ip,
                                                    Oplog.create_time,
-                                                   Oplog.reason).\
+                                                   Oplog.reason). \
         paginate(int(page_size), per_page=10, error_out=False)
     result = []
     for obj in logs.items:
@@ -342,11 +374,11 @@ def get_op_log():
 @api.route('/kind', methods=['GET'])
 def get_kind():
     page_size = request.args.get('page_size')
-    kinds = db.session.query(Kind, func.count(Article.kind_id).label('number'))\
-        .outerjoin(Article).group_by(Kind.id).\
+    kinds = db.session.query(Kind, func.count(Article.kind_id).label('number')) \
+        .outerjoin(Article).group_by(Kind.id). \
         add_columns(Kind.id,
                     Kind.name,
-                    Kind.create_time,). \
+                    Kind.create_time, ). \
         paginate(int(page_size), per_page=10, error_out=False)
     result = []
     for kind in kinds.items:
@@ -355,6 +387,25 @@ def get_kind():
                        'number': kind.number,
                        'create_time': kind.create_time.strftime("%Y-%m-%d %H:%M:%S")})
     return jsonify({'kind': result, 'kind_total': kinds.total, 'status': 200})
+
+
+@api.route('/classification', methods=['GET'])
+def get_classification():
+    kinds = Kind.query.all()
+    return jsonify({'classification': [item.to_json() for item in kinds], 'status': 200})
+
+
+@api.route('/classification/<int:id>')
+def get_article_by_id(id):
+    articles = Article.query.filter_by(kind_id=id).add_columns(Article.id,
+                                                               Article.title,
+                                                               Article.create_time)
+    result = []
+    for kind in articles:
+        result.append({'id': kind.id,
+                       'title': kind.title,
+                       'create_time': kind.create_time.strftime("%Y-%m-%d %H:%M:%S")})
+    return jsonify({'list': result, 'status': 200})
 
 
 @api.route('/kind', methods=['POST'])
@@ -392,63 +443,63 @@ def up_kind():
     pass
 
 
-@api.route('/tag', methods=['GET'])
-def get_tag():
-    page_size = request.args.get('page_size')
-    tags = Tag.query.add_columns(Tag.id,
-                                 Tag.name,
-                                 Tag.create_time). \
-        paginate(int(page_size), per_page=10, error_out=False)
-    result = []
-    for tag in tags.items:
-        result.append({'id': tag.id,
-                       'name': tag.name,
-                       'create_time': tag.create_time.strftime("%Y-%m-%d %H:%M:%S")})
-
-    return jsonify({'tag': result, 'tag_total': tags.total, 'status': 200})
-
-
-@api.route('/tag', methods=['POST'])
-def add_tag():
-    if not request.json or 'name' not in request.json:
-        return jsonify({'status': 400})
-
-    name = request.json['name']
-    if Tag.query.filter_by(name=name).count() is not 0:
-        return jsonify({'flag': 'error', 'reason': '该标签已存在', 'status': 400})
-    tag = Tag(name=name)
-    db.session.add(tag)
-    op_log = Oplog(reason='添加标签')
-    db.session.add(op_log)
-    db.session.commit()
-    return jsonify({'flag': 'success',
-                    'status': 200})
-
-
-@api.route('/tag/<int:id>', methods=['DELETE'])
-def delete_tag(id):
-    if id is None and Tag.query.filter_by(id=id).first() is None:
-        return jsonify({'status': 400})
-
-    tag = Tag.query.filter_by(id=id).first()
-    db.session.delete(tag)
-    op_log = Oplog(reason='删除标签')
-    db.session.add(op_log)
-    db.session.commit()
-    return jsonify({'flag': 'success', 'status': 200})
+# @api.route('/tag', methods=['GET'])
+# def get_tag():
+#     page_size = request.args.get('page_size')
+#     tags = Tag.query.add_columns(Tag.id,
+#                                  Tag.name,
+#                                  Tag.create_time). \
+#         paginate(int(page_size), per_page=10, error_out=False)
+#     result = []
+#     for tag in tags.items:
+#         result.append({'id': tag.id,
+#                        'name': tag.name,
+#                        'create_time': tag.create_time.strftime("%Y-%m-%d %H:%M:%S")})
+#
+#     return jsonify({'tag': result, 'tag_total': tags.total, 'status': 200})
+#
+#
+# @api.route('/tag', methods=['POST'])
+# def add_tag():
+#     if not request.json or 'name' not in request.json:
+#         return jsonify({'status': 400})
+#
+#     name = request.json['name']
+#     if Tag.query.filter_by(name=name).count() is not 0:
+#         return jsonify({'flag': 'error', 'reason': '该标签已存在', 'status': 400})
+#     tag = Tag(name=name)
+#     db.session.add(tag)
+#     op_log = Oplog(reason='添加标签')
+#     db.session.add(op_log)
+#     db.session.commit()
+#     return jsonify({'flag': 'success',
+#                     'status': 200})
+#
+#
+# @api.route('/tag/<int:id>', methods=['DELETE'])
+# def delete_tag(id):
+#     if id is None and Tag.query.filter_by(id=id).first() is None:
+#         return jsonify({'status': 400})
+#
+#     tag = Tag.query.filter_by(id=id).first()
+#     db.session.delete(tag)
+#     op_log = Oplog(reason='删除标签')
+#     db.session.add(op_log)
+#     db.session.commit()
+#     return jsonify({'flag': 'success', 'status': 200})
 
 
 # 权限管理
 @api.route('/permission', methods=['GET'])
 def get_permission():
     page_size = request.args.get('page_size')
-    permissions = Permission.query.\
+    permissions = Permission.query. \
         outerjoin(Role).add_columns(Permission.id,
                                     Permission.name,
                                     Permission.url,
                                     Permission.method,
                                     Permission.create_time,
-                                    Role.role_name).\
+                                    Role.role_name). \
         paginate(int(page_size), per_page=10, error_out=False)
     result = []
     for permission in permissions.items:
@@ -467,8 +518,8 @@ def get_permission():
 @api.route('/permission', methods=['POST'])
 def add_permission():
     if not request.json or not 'name' in request.json \
-            or not 'url' in request.json\
-            or not 'method' in request.json\
+            or not 'url' in request.json \
+            or not 'method' in request.json \
             or not 'role' in request.json:
         return jsonify({'status': 400})
 
@@ -511,15 +562,15 @@ def image_upload():
     if image is not None:
         if image_type == 'avatar':
             filename = secure_filename(image.filename)
-            filename = str(time.time()) + '.'+filename.split('.')[-1]
+            filename = str(time.time()) + '.' + filename.split('.')[-1]
             image.save('app/static/' + filename)
             User.query.filter_by(id=g.user_id).update({'face': request.base_url + '/' + filename + '?w=100&h=100'})
             user_log = Userlog(user_id=g.user_id)
             db.session.add(user_log)
             db.session.commit()
             return jsonify({'flag': 'success',
-                            'status': 200,
-                            'image_url': request.base_url + '/' + filename + '?w=100&h=100'})
+                            'status': 200})
+
         elif image_type == 'markdown':
             filename = secure_filename(image.filename)
             image.save('app/static/' + str(filename))
