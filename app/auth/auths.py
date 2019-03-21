@@ -201,10 +201,13 @@ def register():
             db.session.add(op_log)
             db.session.commit()
             users = User.query.filter_by(name=request.form.get('name')).first()
-            return jsonify({'is_authorization': 'true',
-                            'name': users.name,
-                            'token': str(Auth.encode_token(users.name), encoding='utf-8'),
-                            'status': 200})
+            return jsonify({
+                'id': users.id,
+                'is_authorization': 'true',
+                'name': users.name,
+                'token': str(Auth.encode_token(users.name), encoding='utf-8'),
+                'status': 200
+            })
         return jsonify({'flag': 'error',
                         'reason': '该账号已经注册',
                         'status': 400})

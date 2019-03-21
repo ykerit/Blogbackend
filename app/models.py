@@ -42,19 +42,75 @@ class Permission(db.Model):
                 'name': '权限查看',
                 'url': '/api/permission',
                 'method': 'GET',
-                'role': 1
+                'role': 2
             },
             {
                 'name': '权限增加',
                 'url': '/api/permission',
                 'method': 'POST',
-                'role': 1
+                'role': 2
             },
             {
                 'name': '插入图片',
                 'url': '/api/image',
                 'method': 'POST',
-                'role': 1
+                'role': 2
+            },
+            {
+                'name': '查看文章',
+                'role': 2,
+                'url': '/api/article',
+                'method': 'GET'
+            }, {
+                'name': '查看评论',
+                'role': 2,
+                'url': '/api/comment',
+                'method': 'GET'
+            }, {
+                'name': '查看后台分类',
+                'role': 2,
+                'url': '/api/kind',
+                'method': 'GET'
+            }, {
+                'name': '增加标签',
+                'role': 2,
+                'url': '/api/tag',
+                'method': 'POST'
+            }, {
+                'name': '查看图片',
+                'role': 2,
+                'url': '/api/image',
+                'method': 'GET'
+            }, {
+                'name': '查看前台分类',
+                'role': 2,
+                'url': '/api/classification',
+                'method': 'GET'
+            }, {
+                'name': '查看归档',
+                'role': 2,
+                'url': '/api/filed',
+                'method': 'GET'
+            }, {
+                'name': '撰写评论',
+                'role': 2,
+                'url': '/api/comment',
+                'method': 'POST'
+            }, {
+                'name': '新建文章',
+                'role': 2,
+                'url': '/api/article',
+                'method': 'GET'
+            }, {
+                'name': '新建分类',
+                'role': 2,
+                'url': '/api/kind',
+                'method': 'POST'
+            }, {
+                'name': '查看个人资料',
+                'role': 2,
+                'url': '/api/user',
+                'method': 'GET'
             }
         ]
         for i in permissions:
@@ -186,7 +242,7 @@ class User(db.Model, UserMixin):
     name = db.Column(db.String(16), unique=True)
     create_time = db.Column(db.DateTime, index=True)
     password_hash = db.Column(db.String(128))
-    face = db.Column(db.String(255), unique=True)
+    face = db.Column(db.String(255))
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     article = db.relationship('Article', backref='user', lazy='dynamic')
     user_logs = db.relationship('Userlog', backref='user')  # 会员日志外键关系关联
@@ -198,6 +254,7 @@ class User(db.Model, UserMixin):
         self.password_hash = generate_password_hash(password)
         self.role_id = role
         self.create_time = gen_time()
+        self.face = 'https://s2.ax1x.com/2019/03/21/A3Z2pn.jpg'
 
     @staticmethod
     def insert_admin():

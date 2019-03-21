@@ -39,6 +39,7 @@ def get_user():
     users = User.query.filter_by(role_id=ORDINARY). \
         outerjoin(Role).add_columns(User.id,
                                     User.name,
+                                    User.face,
                                     User.create_time,
                                     Role.role_name). \
         paginate(int(page_size), per_page=10, error_out=False)
@@ -242,6 +243,7 @@ def get_admin():
     admins = User.query.filter_by(role_id=ADMINISTRATOR). \
         outerjoin(Role).add_columns(User.id,
                                     User.name,
+                                    User.face,
                                     User.create_time,
                                     Role.role_name). \
         paginate(int(page_size), per_page=10, error_out=False)
@@ -249,6 +251,7 @@ def get_admin():
     for admin in admins.items:
         result.append({'id': admin.id, 'name': admin.name,
                        'role': admin.role_name,
+                       'face': admin.face,
                        'create_time': admin.create_time.strftime("%Y-%m-%d %H:%M:%S")})
 
     return jsonify({'adminData': result, 'admin_total': admins.total, 'status': 200})
