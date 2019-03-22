@@ -100,7 +100,7 @@ class Permission(db.Model):
                 'name': '新建文章',
                 'role': 2,
                 'url': '/api/article',
-                'method': 'GET'
+                'method': 'POST'
             }, {
                 'name': '新建分类',
                 'role': 2,
@@ -152,12 +152,12 @@ class Article(db.Model):
     body_html = db.Column(db.Text)
     tag = db.Column(db.String(128))
     create_time = db.Column(db.DateTime, index=True)
-    star = db.Column(db.SmallInteger)
+    star = db.Column(db.SmallInteger, default=0)
     kind_id = db.Column(db.Integer, db.ForeignKey('kind.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     comments = db.relationship("Comment", backref='article')
 
-    def __init__(self, title, body, body_html, kind, tag):
+    def __init__(self, title, body, body_html, kind, tag, user_id):
         self.title = title
         self.body = body
         self.body_html = body_html
@@ -165,7 +165,7 @@ class Article(db.Model):
         self.kind_id = kind
         self.tag = tag
         self.create_time = gen_time()
-        # self.kind = kind
+        self.user_id = user_id
 
     def __repr__(self):
         return "<Article %r>" % self.title

@@ -57,9 +57,12 @@ def get_user_by_id(id):
         return jsonify({'status': 400})
 
     user = User.query.filter_by(id=id).first()
-    return jsonify({'id': user.id, 'name': user.name,
+    return jsonify({'id': user.id,
+                    'name': user.name,
                     'face': user.face,
+                    'is_authorization': 'true',
                     'create_time': user.create_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    'token': str(Auth.encode_token(user.name), encoding='utf-8'),
                     'status': 200
                     })
 
@@ -111,18 +114,21 @@ def get_all_article():
     page_size = request.args.get('page_size')
 
     articles = db.session.query(Article, func.count(Comment.article_id).
-                                label('number')).outerjoin(Comment). \
-        group_by(Article.id).add_columns(Article.id,
-                                         Article.title,
-                                         Article.create_time,
-                                         Article.info,
-                                         Article.star). \
+                                label('number')).outerjoin(Comment)\
+        .group_by(Article.id)\
+        .add_columns(Article.id,
+                     Article.title,
+                     Article.create_time,
+                     Article.info,
+                     Article.star,
+                     User.name). \
         paginate(int(page_size), per_page=4, error_out=False)
 
     result = []
     for article in articles.items:
         result.append({
             'id': article.id,
+            'name': article.name,
             'title': article.title,
             'description': article.info,
             'star': article.star,
@@ -138,11 +144,20 @@ def get_all_article():
 def get_article(id):
     if id is None and Article.query.filter_by(id=id).first() is None:
         return jsonify({'status': 400})
-    articles = Article.query.filter_by(id=id).add_columns(Article.id, Article.title, Article.create_time,
-                                                          Article.body_html)
+    articles = Article.query.filter_by(id=id).outerjoin(User)\
+        .add_columns(Article.id,
+                     Article.title,
+                     Article.create_time,
+                     Article.body_html,
+                     User.name,
+                     User.face,
+                     Article.star)
     result = []
     for article in articles:
-        result.append({'id': article.id, 'title': article.title,
+        result.append({'id': article.id,
+                       'title': article.title,
+                       'name': article.name,
+                       'face': article.face,
                        'create_time': article.create_time.strftime("%Y-%m-%d %H:%M:%S"),
                        'preview': article.body_html})
     return jsonify({'articleContent': result, 'status': 200})
@@ -168,14 +183,15 @@ def get_filed():
 def add_article():
     if not request.json or not 'title' in request.json or not 'body' in request.json \
             or not 'body_html' in request.json or not 'kind' in request.json\
-            or not 'tag' in request.json:
+            or not 'tag' in request.json or not 'id' in request.json:
         return jsonify({'status': 400})
 
     article = Article(title=request.json['title'],
                       body=request.json['body'],
                       body_html=request.json['body_html'],
                       kind=request.json['kind'],
-                      tag=request.json['tag'])
+                      tag=request.json['tag'],
+                      user_id=request.json['id'])
 
     op_log = Oplog(reason='发布文章')
     db.session.add(article)
