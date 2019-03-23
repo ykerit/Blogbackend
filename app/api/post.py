@@ -61,6 +61,7 @@ def get_user_by_id(id):
                     'name': user.name,
                     'face': user.face,
                     'is_authorization': 'true',
+                    'role': user.role_id,
                     'create_time': user.create_time.strftime("%Y-%m-%d %H:%M:%S"),
                     'token': str(Auth.encode_token(user.name), encoding='utf-8'),
                     'status': 200
