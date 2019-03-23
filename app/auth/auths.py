@@ -18,16 +18,15 @@ class Auth:
     @staticmethod
     def encode_token(user_name):
         try:
-
             headers = {
                 "typ": "JWT",
                 "alg": "HS256",
             }
             payload = {
                 "headers": headers,
-                'exp': datetime.utcnow() + timedelta(days=0, seconds=10),
+                'exp': datetime.utcnow() + timedelta(days=1, seconds=0),
                 'iat': datetime.utcnow(),
-                'iss': 'yker',
+                'iss': 'Trace Back',
                 'data': {
                     'user_name': user_name
                 }
@@ -40,7 +39,7 @@ class Auth:
     @staticmethod
     def decode_token(token):
         try:
-            payload = jwt.decode(token, 'secret', options={'verify_exp': False})
+            payload = jwt.decode(token, 'secret', options={'verify_exp': True})
             if 'data' in payload and 'user_name' in payload['data']:
                 return payload
             else:
@@ -183,6 +182,7 @@ def login():
                         'name': request.form.get('name'),
                         'token': str(Auth.encode_token(user.name), encoding='utf-8'),
                         'image_url': user.face,
+                        'role': user.role_id,
                         'status': 200})
     return jsonify({'is_authorization': 'false', 'status': 400})
 
@@ -205,6 +205,7 @@ def register():
                 'id': users.id,
                 'is_authorization': 'true',
                 'name': users.name,
+                'role': users.role_id,
                 'token': str(Auth.encode_token(users.name), encoding='utf-8'),
                 'status': 200
             })
