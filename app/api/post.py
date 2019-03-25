@@ -2,6 +2,7 @@ from flask import jsonify, request, send_file, g
 from PIL import Image
 from werkzeug.utils import secure_filename
 import time
+import re
 from sqlalchemy import func
 from ..auth.auths import Auth
 from app.models import User, Article, Role, \
@@ -22,6 +23,14 @@ def gen_json(object):
                        'create_time': obj.create_time.strftime("%Y-%m-%d %H:%M:%S"),
                        'ip': obj.ip})
     return result
+
+
+# 标签序列化
+def gen_tag(tag):
+    tag_list = re.split('-', tag)
+    if tag_list[0] == '':
+        tag_list[0] = '原创'
+    return tag_list
 
 
 # token验证
@@ -61,6 +70,7 @@ def get_user_by_id(id):
                     'name': user.name,
                     'face': user.face,
                     'is_authorization': 'true',
+
                     'role': user.role_id,
                     'create_time': user.create_time.strftime("%Y-%m-%d %H:%M:%S"),
                     'token': str(Auth.encode_token(user.name), encoding='utf-8'),
@@ -122,6 +132,8 @@ def get_all_article():
                      Article.create_time,
                      Article.info,
                      Article.star,
+                     Article.tag,
+                     User.face,
                      User.name). \
         paginate(int(page_size), per_page=4, error_out=False)
 
@@ -134,6 +146,8 @@ def get_all_article():
             'description': article.info,
             'star': article.star,
             'number': article.number,
+            'face': article.face,
+            'tag': gen_tag(article.tag),
             'create_time': article.create_time.strftime("%Y-%m-%d %H:%M:%S")
         })
 

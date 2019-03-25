@@ -4,8 +4,6 @@
     <list default="true" id="2d3c6dd2-8bcc-4f2c-99f4-f77edf25701b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/api/post.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/post.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/auth/auths.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/auth/auths.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data.sqlite" beforeDir="false" afterPath="$PROJECT_DIR$/data.sqlite" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -17,7 +15,7 @@
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/Blog$test.coverage" NAME="test Coverage Results" MODIFIED="1549898813592" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Blog$Flask__manage_py_.coverage" NAME="Flask (manage.py) Coverage Results" MODIFIED="1545840677768" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Blog$manage.coverage" NAME="manage Coverage Results" MODIFIED="1553338612687" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Blog$manage.coverage" NAME="manage Coverage Results" MODIFIED="1553531128764" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Blog$models.coverage" NAME="models Coverage Results" MODIFIED="1541142537871" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Blog$Flask__app_py___1_.coverage" NAME="Flask (app.py) (1) Coverage Results" MODIFIED="1541163874603" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/Blog$Flask__app_py_.coverage" NAME="Flask (app.py) Coverage Results" MODIFIED="1541165350714" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
@@ -58,7 +56,7 @@
     <session id="-34234656">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="122" />
+          <entry key="project.closed" value="124" />
           <entry key="project.open.time.0" value="2" />
           <entry key="project.open.time.1" value="2" />
           <entry key="project.open.time.10" value="10" />
@@ -72,11 +70,11 @@
           <entry key="project.open.time.4" value="1" />
           <entry key="project.open.time.5" value="4" />
           <entry key="project.open.time.6" value="16" />
-          <entry key="project.open.time.7" value="32" />
+          <entry key="project.open.time.7" value="33" />
           <entry key="project.open.time.76" value="1" />
           <entry key="project.open.time.8" value="24" />
-          <entry key="project.open.time.9" value="19" />
-          <entry key="project.opened" value="125" />
+          <entry key="project.open.time.9" value="20" />
+          <entry key="project.opened" value="127" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
@@ -85,15 +83,15 @@
           <entry key="cell" value="73" />
           <entry key="dummy" value="26" />
           <entry key="html" value="29" />
-          <entry key="py" value="23047" />
-          <entry key="txt" value="342" />
+          <entry key="py" value="23219" />
+          <entry key="txt" value="343" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="HTML" value="29" />
-          <entry key="PLAIN_TEXT" value="368" />
-          <entry key="Python" value="23070" />
+          <entry key="PLAIN_TEXT" value="369" />
+          <entry key="Python" value="23242" />
           <entry key="SQL" value="4" />
           <entry key="Scratch" value="73" />
         </counts>
@@ -102,13 +100,13 @@
         <counts>
           <entry key="admin" value="4" />
           <entry key="adminlog" value="1" />
-          <entry key="article" value="28" />
+          <entry key="article" value="29" />
           <entry key="cfg" value="1" />
           <entry key="comment" value="15" />
           <entry key="db" value="1" />
           <entry key="html" value="5" />
           <entry key="jpg" value="8" />
-          <entry key="kind" value="7" />
+          <entry key="kind" value="8" />
           <entry key="md" value="2" />
           <entry key="oplog" value="2" />
           <entry key="permission" value="8" />
@@ -125,7 +123,7 @@
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Database Element" value="107" />
+          <entry key="Database Element" value="109" />
           <entry key="HTML" value="5" />
           <entry key="Image" value="8" />
           <entry key="Ini" value="1" />
@@ -148,40 +146,20 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/models.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="11590">
-              <caret line="341" column="28" lean-forward="true" selection-start-line="341" selection-start-column="28" selection-end-line="341" selection-end-column="28" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/auth/auths.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="535">
-              <caret line="207" column="38" lean-forward="true" selection-start-line="207" selection-start-column="38" selection-end-line="207" selection-end-column="38" />
-              <folding>
-                <element signature="e#0#37#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/api/post.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1665">
-              <caret line="63" column="41" selection-start-line="63" selection-start-column="41" selection-end-line="63" selection-end-column="41" />
+            <state relative-caret-position="-1094">
+              <caret line="34" lean-forward="true" selection-start-line="34" selection-end-line="34" />
               <folding>
                 <element signature="e#0#48#0" expanded="true" />
-                <marker date="1553337771350" expanded="true" signature="640:641" ph="..." />
-                <marker date="1553337771350" expanded="true" signature="1675:2258" ph="..." />
-                <marker date="1553337771350" expanded="true" signature="2975:2987" ph="..." />
-                <marker date="1553337771350" expanded="true" signature="5414:5993" ph="..." />
-                <marker date="1553337771350" expanded="true" signature="14144:14834" ph="..." />
-                <marker date="1553337771350" expanded="true" signature="14331:14834" ph="..." />
+                <marker date="1553531605963" expanded="true" signature="676:786" ph="..." />
+                <marker date="1553531605963" expanded="true" signature="785:786" ph="..." />
+                <marker date="1553531605963" expanded="true" signature="1820:2404" ph="..." />
+                <marker date="1553531605963" expanded="true" signature="3121:3133" ph="..." />
+                <marker date="1553531605963" expanded="true" signature="5701:6280" ph="..." />
+                <marker date="1553531605963" expanded="true" signature="14431:15121" ph="..." />
+                <marker date="1553531605963" expanded="true" signature="14618:15121" ph="..." />
               </folding>
             </state>
           </provider>
@@ -659,7 +637,14 @@
       <option name="project" value="LOCAL" />
       <updated>1553281717392</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="1.2.4">
+      <created>1553338646960</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1553338646960</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TodoView">
@@ -673,14 +658,13 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="Structure" order="0" sideWeight="0.5008347" side_tool="true" weight="0.13646056" />
       <window_info id="Favorites" order="1" side_tool="true" />
-      <window_info x="953" y="250" width="136" height="540" id="Project" order="2" sideWeight="0.50053024" visible="true" weight="0.14925373" />
+      <window_info x="953" y="250" width="136" height="540" id="Project" order="2" sideWeight="0.50053024" visible="true" weight="0.15245202" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32850942" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49798927" visible="true" weight="0.32083791" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49798927" visible="true" weight="0.3131202" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39752406" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -697,7 +681,7 @@
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="SciView" order="3" weight="0.3297587" />
-      <window_info active="true" anchor="right" id="Database" order="4" sideWeight="0.4994698" visible="true" weight="0.18603411" />
+      <window_info anchor="right" id="Database" order="4" sideWeight="0.4994698" visible="true" weight="0.18603411" />
     </layout>
     <layout-to-restore>
       <window_info id="Structure" order="0" sideWeight="0.5008347" side_tool="true" weight="0.13646056" />
@@ -756,7 +740,8 @@
     <MESSAGE value="1.2.0 add kind tag" />
     <MESSAGE value="1.2.0 &amp;" />
     <MESSAGE value="1.2.1" />
-    <option name="LAST_COMMIT_MESSAGE" value="1.2.1" />
+    <MESSAGE value="1.2.4" />
+    <option name="LAST_COMMIT_MESSAGE" value="1.2.4" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/venv/Lib/site-packages/flask_sqlalchemy/model.py">
@@ -980,27 +965,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="11590">
-          <caret line="341" column="28" lean-forward="true" selection-start-line="341" selection-start-column="28" selection-end-line="341" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
     <entry file="das://c8b46fa1-76eb-4e4b-8665-45777f7d3921/schema/main/table/user">
       <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
         <state>
           <filtering enabled="true" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/auth/auths.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="535">
-          <caret line="207" column="38" lean-forward="true" selection-start-line="207" selection-start-column="38" selection-end-line="207" selection-end-column="38" />
-          <folding>
-            <element signature="e#0#37#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1025,13 +993,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="das://c8b46fa1-76eb-4e4b-8665-45777f7d3921/schema/main/table/kind">
-      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
-        <state>
-          <filtering enabled="true" />
-        </state>
-      </provider>
-    </entry>
     <entry file="das://c8b46fa1-76eb-4e4b-8665-45777f7d3921/schema/main/table/comment">
       <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
         <state>
@@ -1046,6 +1007,20 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/app/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="12844">
+          <caret line="341" column="28" selection-start-line="341" selection-start-column="28" selection-end-line="341" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="das://c8b46fa1-76eb-4e4b-8665-45777f7d3921/schema/main/table/kind">
+      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
+        <state>
+          <filtering enabled="true" />
+        </state>
+      </provider>
+    </entry>
     <entry file="das://c8b46fa1-76eb-4e4b-8665-45777f7d3921/schema/main/table/article">
       <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
         <state>
@@ -1053,18 +1028,29 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/app/auth/auths.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2411">
+          <caret line="207" column="38" selection-start-line="207" selection-start-column="38" selection-end-line="207" selection-end-column="38" />
+          <folding>
+            <element signature="e#0#37#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/app/api/post.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1665">
-          <caret line="63" column="41" selection-start-line="63" selection-start-column="41" selection-end-line="63" selection-end-column="41" />
+        <state relative-caret-position="-1094">
+          <caret line="34" lean-forward="true" selection-start-line="34" selection-end-line="34" />
           <folding>
             <element signature="e#0#48#0" expanded="true" />
-            <marker date="1553337771350" expanded="true" signature="640:641" ph="..." />
-            <marker date="1553337771350" expanded="true" signature="1675:2258" ph="..." />
-            <marker date="1553337771350" expanded="true" signature="2975:2987" ph="..." />
-            <marker date="1553337771350" expanded="true" signature="5414:5993" ph="..." />
-            <marker date="1553337771350" expanded="true" signature="14144:14834" ph="..." />
-            <marker date="1553337771350" expanded="true" signature="14331:14834" ph="..." />
+            <marker date="1553531605963" expanded="true" signature="676:786" ph="..." />
+            <marker date="1553531605963" expanded="true" signature="785:786" ph="..." />
+            <marker date="1553531605963" expanded="true" signature="1820:2404" ph="..." />
+            <marker date="1553531605963" expanded="true" signature="3121:3133" ph="..." />
+            <marker date="1553531605963" expanded="true" signature="5701:6280" ph="..." />
+            <marker date="1553531605963" expanded="true" signature="14431:15121" ph="..." />
+            <marker date="1553531605963" expanded="true" signature="14618:15121" ph="..." />
           </folding>
         </state>
       </provider>
