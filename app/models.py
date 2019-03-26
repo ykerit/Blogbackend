@@ -242,7 +242,10 @@ class User(db.Model, UserMixin):
     name = db.Column(db.String(16), unique=True)
     create_time = db.Column(db.DateTime, index=True)
     password_hash = db.Column(db.String(128))
-    face = db.Column(db.String(255))
+    face = db.Column(db.String(255))  # 头像
+    title = db.Column(db.String(50), default='暂无')  # 技术栈
+    group = db.Column(db.String(25), default='暂无')  # 学历
+    signature = db.Column(db.String(100), default='海纳百川，有容乃大')  # 个人签名
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     article = db.relationship('Article', backref='user', lazy='dynamic')
     user_logs = db.relationship('Userlog', backref='user')  # 会员日志外键关系关联

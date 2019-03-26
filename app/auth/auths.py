@@ -16,7 +16,7 @@ class Auth:
 
     # 生成token
     @staticmethod
-    def encode_token(user_name):
+    def encode_token(id):
         try:
             headers = {
                 "typ": "JWT",
@@ -28,7 +28,7 @@ class Auth:
                 'iat': datetime.utcnow(),
                 'iss': 'Trace Back',
                 'data': {
-                    'user_name': user_name
+                    'user_id': id
                 }
             }
             return jwt.encode(payload, 'secret', 'HS256')
@@ -40,7 +40,7 @@ class Auth:
     def decode_token(token):
         try:
             payload = jwt.decode(token, 'secret', options={'verify_exp': True})
-            if 'data' in payload and 'user_name' in payload['data']:
+            if 'data' in payload and 'user_id' in payload['data']:
                 return payload
             else:
                 raise jwt.InvalidTokenError
@@ -124,7 +124,7 @@ class Auth:
                     'status': 400
                 }
             else:
-                user = User.query.filter_by(name=auth_token['data']['user_name']).first()
+                user = User.query.filter_by(id=auth_token['data']['user_id']).first()
                 if user is None:
                     result = {
                         'flag': 'error',
@@ -180,8 +180,8 @@ def login():
         return jsonify({'is_authorization': 'true',
                         'id': user.id,
                         'name': request.form.get('name'),
-                        'token': str(Auth.encode_token(user.name), encoding='utf-8'),
-                        'image_url': user.face,
+                        'token': str(Auth.encode_token(user.id), encoding='utf-8'),
+                        'face': user.face,
                         'role': user.role_id,
                         'status': 200})
     return jsonify({'is_authorization': 'false', 'status': 400})
@@ -206,7 +206,7 @@ def register():
                 'is_authorization': 'true',
                 'name': users.name,
                 'role': users.role_id,
-                'token': str(Auth.encode_token(users.name), encoding='utf-8'),
+                'token': str(Auth.encode_token(users.id), encoding='utf-8'),
                 'status': 200
             })
         return jsonify({'flag': 'error',
