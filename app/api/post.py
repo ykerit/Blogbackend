@@ -6,7 +6,7 @@ import re
 from sqlalchemy import func
 from ..auth.auths import Auth
 from app.models import User, Article, Role, \
-    Adminlog, Oplog, Userlog, Comment, Kind, Permission
+    Oplog, Userlog, Comment, Kind, Permission
 from . import api
 from .. import db
 
@@ -19,9 +19,11 @@ ORDINARY = 2
 def gen_json(object):
     result = []
     for obj in object:
-        result.append({'id': obj.id, 'name': obj.name,
+        result.append({'id': obj.id,
+                       'name': obj.name,
                        'create_time': obj.create_time.strftime("%Y-%m-%d %H:%M:%S"),
-                       'ip': obj.ip})
+                       'ip': obj.ip,
+                       'reason': obj.reason})
     return result
 
 
@@ -79,6 +81,7 @@ def get_user_by_id(id):
                     'title': user.title,
                     'group': user.group,
                     'signature': user.signature,
+                    'tag': gen_tag(user.tag),
                     'create_time': user.create_time.strftime("%Y-%m-%d %H:%M:%S"),
                     'token': str(Auth.encode_token(user.id), encoding='utf-8'),
                     'status': 200
@@ -123,7 +126,23 @@ def update_user(id):
             'title': title,
             'group': group,
             'signature': signature})
-        user_log = Userlog(user_id=g.user_id)
+        user_log = Userlog(user_id=g.user_id, reason="修改信息")
+        db.session.add(user_log)
+        db.session.commit()
+        return jsonify({'id': id, 'flag': 'success', 'status': 200})
+    else:
+        return jsonify({'status': 400})
+
+
+# 修改用户信息
+@api.route('/user_tag/<int:id>', methods=['PUT'])
+def update_user_tag(id):
+    tag = request.form.get('tag')
+    print(tag)
+    if tag:
+        User.query.filter_by(id=id). \
+            update({'tag': tag})
+        user_log = Userlog(user_id=g.user_id, reason="修改信息")
         db.session.add(user_log)
         db.session.commit()
         return jsonify({'id': id, 'flag': 'success', 'status': 200})
@@ -380,31 +399,14 @@ def add_comment():
 
 # 权限管理
 
-
-# 日志
-@api.route('/admin_log', methods=['GET'])
-def get_admin_log():
-    page_size = request.args.get('page_size')
-    logs = Adminlog.query.outerjoin(User).filter_by(role_id=ADMINISTRATOR). \
-        add_columns(Adminlog.id,
-                    User.name,
-                    Adminlog.ip,
-                    Adminlog.create_time).\
-        order_by(Adminlog.create_time.desc()). \
-        paginate(int(page_size), per_page=10, error_out=False)
-
-    return jsonify({'AdminLog': gen_json(logs.items),
-                    'adminLog_total': logs.total,
-                    'status': 200})
-
-
 @api.route('/user_log', methods=['GET'])
 def get_user_log():
     page_size = request.args.get('page_size')
-    logs = Userlog.query.outerjoin(User).filter_by(role_id=ORDINARY). \
-        add_columns(Userlog.id,
+    logs = Userlog.query.outerjoin(User). \
+        add_columns(User.id,
                     User.name,
                     Userlog.ip,
+                    Userlog.reason,
                     Userlog.create_time).\
         order_by(Userlog.create_time.desc()). \
         paginate(int(page_size), per_page=10, error_out=False)
@@ -417,7 +419,7 @@ def get_user_log():
 @api.route('/op_log', methods=['GET'])
 def get_op_log():
     page_size = request.args.get('page_size')
-    logs = Oplog.query.outerjoin(User).add_columns(Oplog.id,
+    logs = Oplog.query.outerjoin(User).add_columns(User.id,
                                                    User.name,
                                                    Oplog.ip,
                                                    Oplog.create_time,
@@ -615,7 +617,7 @@ def image_upload():
             filename = str(time.time()) + '.' + filename.split('.')[-1]
             image.save('app/static/' + filename)
             User.query.filter_by(id=g.user_id).update({'face': request.base_url + '/' + filename + '?w=100&h=100'})
-            user_log = Userlog(user_id=g.user_id)
+            user_log = Userlog(user_id=g.user_id, reason="更改头像")
             db.session.add(user_log)
             db.session.commit()
             return jsonify({'flag': 'success',

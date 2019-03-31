@@ -173,7 +173,7 @@ def login():
     password = request.form.get('password')
 
     if user is not None and user.verify_password(password=password):
-        user_log = Userlog(user_id=user.id)
+        user_log = Userlog(user_id=user.id, reason="登陆")
         db.session.add(user_log)
         db.session.commit()
 
@@ -197,10 +197,11 @@ def register():
         if record == 0:
             user = User(name=name, password=password, role=ORDINARY)
             db.session.add(user)
-            op_log = Oplog(reason='用户注册')
-            db.session.add(op_log)
             db.session.commit()
             users = User.query.filter_by(name=request.form.get('name')).first()
+            op_log = Oplog(id=users.id, reason='用户注册')
+            db.session.add(op_log)
+            db.session.commit()
             return jsonify({
                 'id': users.id,
                 'is_authorization': 'true',
