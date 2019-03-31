@@ -101,7 +101,7 @@ def add_user():
 
     user = User(name=name, password=password, role=ORDINARY)
     db.session.add(user)
-    op_log = Oplog(reason='添加用户')
+    op_log = Oplog(id=g.user_id, reason='添加用户')
     db.session.add(op_log)
     db.session.commit()
 
@@ -138,7 +138,7 @@ def delete_user(id):
 
     user = User.query.filter_by(id=id).first()
     db.session.delete(user)
-    op_log = Oplog(reason='删除用户')
+    op_log = Oplog(id=g.user_id, reason='删除用户')
     db.session.add(op_log)
     db.session.commit()
     return jsonify({'flag': 'success', 'status': 200})
@@ -158,7 +158,8 @@ def get_all_article():
         Article.star,
         Article.tag,
         User.face,
-        User.name).paginate(int(page_size), per_page=4, error_out=False)
+        User.name).order_by(Article.create_time.desc())\
+        .paginate(int(page_size), per_page=4, error_out=False)
     result = []
     for article in articles.items:
         result.append({
@@ -232,7 +233,7 @@ def add_article():
                       tag=request.json['tag'],
                       user_id=request.json['id'])
 
-    op_log = Oplog(reason='发布文章')
+    op_log = Oplog(id=g.user_id, reason='发布文章')
     db.session.add(article)
     db.session.add(op_log)
     db.session.commit()
@@ -250,7 +251,7 @@ def delete_article(id):
     if id is None and Article.query.filter_by(id=id).first() is None:
         return jsonify({'status': 400})
     article = Article.query.filter_by(id=id).first()
-    op_log = Oplog(reason='删除文章')
+    op_log = Oplog(id=g.user_id, reason='删除文章')
     db.session.delete(article)
     db.session.add(op_log)
     db.session.commit()
@@ -285,7 +286,7 @@ def delete_role(id):
 
     role = Role.query.filter_by(id=id).first()
     db.session.delete(role)
-    op_log = Oplog(reason='删除角色')
+    op_log = Oplog(g.user_id, reason='删除角色')
     db.session.add(op_log)
     db.session.commit()
     return jsonify({'flag': 'success', 'status': 200})
@@ -326,7 +327,7 @@ def add_admin():
 
     admin = User(name=name, password=password, role=ADMINISTRATOR)
     db.session.add(admin)
-    op_log = Oplog(reason='添加管理员')
+    op_log = Oplog(id=g.user_id, reason='添加管理员')
     db.session.add(op_log)
     db.session.commit()
 
@@ -340,7 +341,7 @@ def delete_admin(id):
 
     admin = User.query.filter_by(id=id).first()
     db.session.delete(admin)
-    op_log = Oplog(reason='删除管理员')
+    op_log = Oplog(id=g.user_id, reason='删除管理员')
     db.session.add(op_log)
     db.session.commit()
     return jsonify({'flag': 'success', 'status': 200})
@@ -388,7 +389,8 @@ def get_admin_log():
         add_columns(Adminlog.id,
                     User.name,
                     Adminlog.ip,
-                    Adminlog.create_time). \
+                    Adminlog.create_time).\
+        order_by(Adminlog.create_time.desc()). \
         paginate(int(page_size), per_page=10, error_out=False)
 
     return jsonify({'AdminLog': gen_json(logs.items),
@@ -403,7 +405,8 @@ def get_user_log():
         add_columns(Userlog.id,
                     User.name,
                     Userlog.ip,
-                    Userlog.create_time). \
+                    Userlog.create_time).\
+        order_by(Userlog.create_time.desc()). \
         paginate(int(page_size), per_page=10, error_out=False)
 
     return jsonify({'UserLog': gen_json(logs.items),
@@ -418,7 +421,8 @@ def get_op_log():
                                                    User.name,
                                                    Oplog.ip,
                                                    Oplog.create_time,
-                                                   Oplog.reason). \
+                                                   Oplog.reason).\
+        order_by(Oplog.create_time.desc()). \
         paginate(int(page_size), per_page=10, error_out=False)
     result = []
     for obj in logs.items:
@@ -479,7 +483,8 @@ def get_article_by_user(id):
         Article.star,
         Article.tag,
         User.face,
-        User.name).paginate(int(page_size), per_page=4, error_out=False)
+        User.name).order_by(Article.create_time.desc())\
+        .paginate(int(page_size), per_page=4, error_out=False)
     result = []
     for article in articles.items:
         result.append({
@@ -508,7 +513,7 @@ def add_kind():
         return jsonify({'flag': 'error', 'reason': '该分类已存在', 'status': 400})
     kind = Kind(name=name)
     db.session.add(kind)
-    op_log = Oplog(reason='添加分类')
+    op_log = Oplog(id=g.user_id, reason='添加分类')
     db.session.add(op_log)
     db.session.commit()
     return jsonify({'flag': 'success',
@@ -522,7 +527,7 @@ def delete_kind(id):
 
     kind = Kind.query.filter_by(id=id).first()
     db.session.delete(kind)
-    op_log = Oplog(reason='删除分类')
+    op_log = Oplog(id=g.user_id, reason='删除分类')
     db.session.add(op_log)
     db.session.commit()
     return jsonify({'flag': 'success', 'status': 200})
@@ -543,7 +548,8 @@ def get_permission():
                                     Permission.url,
                                     Permission.method,
                                     Permission.create_time,
-                                    Role.role_name). \
+                                    Role.role_name).\
+        order_by(Permission.create_time.desc()). \
         paginate(int(page_size), per_page=10, error_out=False)
     result = []
     for permission in permissions.items:
@@ -578,7 +584,7 @@ def add_permission():
 
     permission = Permission(name=name, url=url, method=method, role=role)
     db.session.add(permission)
-    op_log = Oplog(reason='添加权限')
+    op_log = Oplog(id=g.user_id, reason='添加权限')
     db.session.add(op_log)
     db.session.commit()
 
@@ -592,7 +598,7 @@ def delete_permission(id):
 
     permission = Permission.query.filter_by(id=id).first()
     db.session.delete(permission)
-    op_log = Oplog(reason='删除权限')
+    op_log = Oplog(id=g.user_id, reason='删除权限')
     db.session.add(op_log)
     db.session.commit()
     return jsonify({'flag': 'success', 'status': 200})

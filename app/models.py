@@ -290,6 +290,7 @@ class Userlog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     ip = db.Column(db.String(100))
+    reason = db.Column(db.String(50))
     create_time = db.Column(db.DateTime, index=True)
 
     def __init__(self, user_id):
@@ -334,9 +335,10 @@ class Oplog(db.Model):
     reason = db.Column(db.String(600))
     create_time = db.Column(db.DateTime, index=True)
 
-    def __init__(self, reason):
+    def __init__(self, id, reason):
         self.create_time = gen_time()
         self.reason = reason
+        self.admin_id = id
 
     def __repr__(self):
         return "<opmin %r>" % self.id
