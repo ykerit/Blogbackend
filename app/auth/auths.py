@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 from app.models import User, Userlog, Oplog, Permission
 from . import auth
 from .. import db
+from ..util import response_to_json
+
 # 管理员 与 普通用户
 ADMINISTRATOR = 1
 ORDINARY = 2
@@ -94,7 +96,7 @@ class Auth:
         if path.count('/') > 2:
             path = path[0:path.rfind('/')]
 
-        permission = Permission.query.\
+        permission = Permission.query. \
             filter_by(url=path, method=methods, role=role).first()
         if permission is not None:
             return True
@@ -154,9 +156,9 @@ class Auth:
         else:
             if Auth.anonymous_authentication(path, methods):
                 result = {
-                        'flag': 'success',
-                        'msg': '匿名请求成功',
-                        'status': 200
+                    'flag': 'success',
+                    'msg': '匿名请求成功',
+                    'status': 200
                 }
             else:
                 result = {
@@ -176,15 +178,9 @@ def login():
         user_log = Userlog(user_id=user.id, reason="登陆")
         db.session.add(user_log)
         db.session.commit()
-
-        return jsonify({'is_authorization': 'true',
-                        'id': user.id,
-                        'name': request.form.get('name'),
-                        'token': str(Auth.encode_token(user.id), encoding='utf-8'),
-                        'face': user.face,
-                        'role': user.role_id,
-                        'status': 200})
-    return jsonify({'is_authorization': 'false', 'status': 400})
+        return response_to_json.current_user(user,
+                                             str(Auth.encode_token(user.id), encoding='utf-8'))
+    return jsonify({'isAuthorization': 'false', 'status': 400})
 
 
 # 注册
@@ -202,14 +198,8 @@ def register():
             op_log = Oplog(id=users.id, reason='用户注册')
             db.session.add(op_log)
             db.session.commit()
-            return jsonify({
-                'id': users.id,
-                'is_authorization': 'true',
-                'name': users.name,
-                'role': users.role_id,
-                'token': str(Auth.encode_token(users.id), encoding='utf-8'),
-                'status': 200
-            })
+            return response_to_json.current_user(users,
+                                                 str(Auth.encode_token(users.id), encoding='utf-8'))
         return jsonify({'flag': 'error',
                         'reason': '该账号已经注册',
                         'status': 400})

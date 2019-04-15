@@ -9,6 +9,7 @@ from app.models import User, Article, Role, \
     Oplog, Userlog, Comment, Kind, Permission
 from . import api
 from .. import db
+from ..util import response_to_json
 
 # 管理员 与 普通用户
 ADMINISTRATOR = 1
@@ -25,14 +26,6 @@ def gen_json(object):
                        'ip': obj.ip,
                        'reason': obj.reason})
     return result
-
-
-# 标签序列化
-def gen_tag(tag):
-    tag_list = re.split('-', tag)
-    if tag_list[0] == '':
-        tag_list[0] = '原创'
-    return tag_list
 
 
 # token验证
@@ -73,19 +66,8 @@ def get_user_by_id(id):
         return jsonify({'status': 400})
 
     user = User.query.filter_by(id=id).first()
-    return jsonify({'id': user.id,
-                    'name': user.name,
-                    'face': user.face,
-                    'is_authorization': 'true',
-                    'role': user.role_id,
-                    'title': user.title,
-                    'group': user.group,
-                    'signature': user.signature,
-                    'tag': gen_tag(user.tag),
-                    'create_time': user.create_time.strftime("%Y-%m-%d %H:%M:%S"),
-                    'token': str(Auth.encode_token(user.id), encoding='utf-8'),
-                    'status': 200
-                    })
+    return response_to_json.current_user(user,
+                                         str(Auth.encode_token(user.id), encoding='utf-8'))
 
 
 # 添加用户 admin
@@ -188,7 +170,7 @@ def get_all_article():
             'description': article.info,
             'star': article.star,
             'face': article.face,
-            'tag': gen_tag(article.tag),
+            'tag': response_to_json.gen_tag(article.tag),
             'number': Comment.query.filter_by(article_id=article.id).count(),
             'create_time': article.create_time.strftime("%Y-%m-%d %H:%M:%S")
         })
@@ -496,7 +478,7 @@ def get_article_by_user(id):
             'description': article.info,
             'star': article.star,
             'face': article.face,
-            'tag': gen_tag(article.tag),
+            'tag': response_to_json.gen_tag(article.tag),
             'number': Comment.query.filter_by(article_id=article.id).count(),
             'create_time': article.create_time.strftime("%Y-%m-%d %H:%M:%S")
         })
