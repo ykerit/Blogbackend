@@ -6,9 +6,10 @@ import re
 from sqlalchemy import func
 from ..auth.auths import Auth
 from app.models import User, Article, Role, \
-    Adminlog, Oplog, Userlog, Comment, Kind, Permission
+    Oplog, Userlog, Comment, Kind, Permission
 from . import api
 from .. import db
+from ..util import response_to_json
 
 # 管理员 与 普通用户
 ADMINISTRATOR = 1
@@ -19,18 +20,12 @@ ORDINARY = 2
 def gen_json(object):
     result = []
     for obj in object:
-        result.append({'id': obj.id, 'name': obj.name,
+        result.append({'id': obj.id,
+                       'name': obj.name,
                        'create_time': obj.create_time.strftime("%Y-%m-%d %H:%M:%S"),
-                       'ip': obj.ip})
+                       'ip': obj.ip,
+                       'reason': obj.reason})
     return result
-
-
-# 标签序列化
-def gen_tag(tag):
-    tag_list = re.split('-', tag)
-    if tag_list[0] == '':
-        tag_list[0] = '原创'
-    return tag_list
 
 
 # token验证
@@ -71,18 +66,8 @@ def get_user_by_id(id):
         return jsonify({'status': 400})
 
     user = User.query.filter_by(id=id).first()
-    return jsonify({'id': user.id,
-                    'name': user.name,
-                    'face': user.face,
-                    'is_authorization': 'true',
-                    'role': user.role_id,
-                    'title': user.title,
-                    'group': user.group,
-                    'signature': user.signature,
-                    'create_time': user.create_time.strftime("%Y-%m-%d %H:%M:%S"),
-                    'token': str(Auth.encode_token(user.id), encoding='utf-8'),
-                    'status': 200
-                    })
+    return response_to_json.current_user(user,
+                                         str(Auth.encode_token(user.id), encoding='utf-8'))
 
 
 # 添加用户 admin
@@ -101,7 +86,7 @@ def add_user():
 
     user = User(name=name, password=password, role=ORDINARY)
     db.session.add(user)
-    op_log = Oplog(reason='添加用户')
+    op_log = Oplog(id=g.user_id, reason='添加用户')
     db.session.add(op_log)
     db.session.commit()
 
@@ -123,7 +108,23 @@ def update_user(id):
             'title': title,
             'group': group,
             'signature': signature})
-        user_log = Userlog(user_id=g.user_id)
+        user_log = Userlog(user_id=g.user_id, reason="修改信息")
+        db.session.add(user_log)
+        db.session.commit()
+        return jsonify({'id': id, 'flag': 'success', 'status': 200})
+    else:
+        return jsonify({'status': 400})
+
+
+# 修改用户信息
+@api.route('/user_tag/<int:id>', methods=['PUT'])
+def update_user_tag(id):
+    tag = request.form.get('tag')
+    print(tag)
+    if tag:
+        User.query.filter_by(id=id). \
+            update({'tag': tag})
+        user_log = Userlog(user_id=g.user_id, reason="修改信息")
         db.session.add(user_log)
         db.session.commit()
         return jsonify({'id': id, 'flag': 'success', 'status': 200})
@@ -138,7 +139,7 @@ def delete_user(id):
 
     user = User.query.filter_by(id=id).first()
     db.session.delete(user)
-    op_log = Oplog(reason='删除用户')
+    op_log = Oplog(id=g.user_id, reason='删除用户')
     db.session.add(op_log)
     db.session.commit()
     return jsonify({'flag': 'success', 'status': 200})
@@ -158,7 +159,8 @@ def get_all_article():
         Article.star,
         Article.tag,
         User.face,
-        User.name).paginate(int(page_size), per_page=4, error_out=False)
+        User.name).order_by(Article.create_time.desc())\
+        .paginate(int(page_size), per_page=4, error_out=False)
     result = []
     for article in articles.items:
         result.append({
@@ -168,7 +170,7 @@ def get_all_article():
             'description': article.info,
             'star': article.star,
             'face': article.face,
-            'tag': gen_tag(article.tag),
+            'tag': response_to_json.gen_tag(article.tag),
             'number': Comment.query.filter_by(article_id=article.id).count(),
             'create_time': article.create_time.strftime("%Y-%m-%d %H:%M:%S")
         })
@@ -232,7 +234,7 @@ def add_article():
                       tag=request.json['tag'],
                       user_id=request.json['id'])
 
-    op_log = Oplog(reason='发布文章')
+    op_log = Oplog(id=g.user_id, reason='发布文章')
     db.session.add(article)
     db.session.add(op_log)
     db.session.commit()
@@ -250,7 +252,7 @@ def delete_article(id):
     if id is None and Article.query.filter_by(id=id).first() is None:
         return jsonify({'status': 400})
     article = Article.query.filter_by(id=id).first()
-    op_log = Oplog(reason='删除文章')
+    op_log = Oplog(id=g.user_id, reason='删除文章')
     db.session.delete(article)
     db.session.add(op_log)
     db.session.commit()
@@ -285,7 +287,7 @@ def delete_role(id):
 
     role = Role.query.filter_by(id=id).first()
     db.session.delete(role)
-    op_log = Oplog(reason='删除角色')
+    op_log = Oplog(g.user_id, reason='删除角色')
     db.session.add(op_log)
     db.session.commit()
     return jsonify({'flag': 'success', 'status': 200})
@@ -326,7 +328,7 @@ def add_admin():
 
     admin = User(name=name, password=password, role=ADMINISTRATOR)
     db.session.add(admin)
-    op_log = Oplog(reason='添加管理员')
+    op_log = Oplog(id=g.user_id, reason='添加管理员')
     db.session.add(op_log)
     db.session.commit()
 
@@ -340,7 +342,7 @@ def delete_admin(id):
 
     admin = User.query.filter_by(id=id).first()
     db.session.delete(admin)
-    op_log = Oplog(reason='删除管理员')
+    op_log = Oplog(id=g.user_id, reason='删除管理员')
     db.session.add(op_log)
     db.session.commit()
     return jsonify({'flag': 'success', 'status': 200})
@@ -379,31 +381,16 @@ def add_comment():
 
 # 权限管理
 
-
-# 日志
-@api.route('/admin_log', methods=['GET'])
-def get_admin_log():
-    page_size = request.args.get('page_size')
-    logs = Adminlog.query.outerjoin(User).filter_by(role_id=ADMINISTRATOR). \
-        add_columns(Adminlog.id,
-                    User.name,
-                    Adminlog.ip,
-                    Adminlog.create_time). \
-        paginate(int(page_size), per_page=10, error_out=False)
-
-    return jsonify({'AdminLog': gen_json(logs.items),
-                    'adminLog_total': logs.total,
-                    'status': 200})
-
-
 @api.route('/user_log', methods=['GET'])
 def get_user_log():
     page_size = request.args.get('page_size')
-    logs = Userlog.query.outerjoin(User).filter_by(role_id=ORDINARY). \
-        add_columns(Userlog.id,
+    logs = Userlog.query.outerjoin(User). \
+        add_columns(User.id,
                     User.name,
                     Userlog.ip,
-                    Userlog.create_time). \
+                    Userlog.reason,
+                    Userlog.create_time).\
+        order_by(Userlog.create_time.desc()). \
         paginate(int(page_size), per_page=10, error_out=False)
 
     return jsonify({'UserLog': gen_json(logs.items),
@@ -414,11 +401,12 @@ def get_user_log():
 @api.route('/op_log', methods=['GET'])
 def get_op_log():
     page_size = request.args.get('page_size')
-    logs = Oplog.query.outerjoin(User).add_columns(Oplog.id,
+    logs = Oplog.query.outerjoin(User).add_columns(User.id,
                                                    User.name,
                                                    Oplog.ip,
                                                    Oplog.create_time,
-                                                   Oplog.reason). \
+                                                   Oplog.reason).\
+        order_by(Oplog.create_time.desc()). \
         paginate(int(page_size), per_page=10, error_out=False)
     result = []
     for obj in logs.items:
@@ -479,7 +467,8 @@ def get_article_by_user(id):
         Article.star,
         Article.tag,
         User.face,
-        User.name).paginate(int(page_size), per_page=4, error_out=False)
+        User.name).order_by(Article.create_time.desc())\
+        .paginate(int(page_size), per_page=4, error_out=False)
     result = []
     for article in articles.items:
         result.append({
@@ -489,7 +478,7 @@ def get_article_by_user(id):
             'description': article.info,
             'star': article.star,
             'face': article.face,
-            'tag': gen_tag(article.tag),
+            'tag': response_to_json.gen_tag(article.tag),
             'number': Comment.query.filter_by(article_id=article.id).count(),
             'create_time': article.create_time.strftime("%Y-%m-%d %H:%M:%S")
         })
@@ -508,7 +497,7 @@ def add_kind():
         return jsonify({'flag': 'error', 'reason': '该分类已存在', 'status': 400})
     kind = Kind(name=name)
     db.session.add(kind)
-    op_log = Oplog(reason='添加分类')
+    op_log = Oplog(id=g.user_id, reason='添加分类')
     db.session.add(op_log)
     db.session.commit()
     return jsonify({'flag': 'success',
@@ -522,7 +511,7 @@ def delete_kind(id):
 
     kind = Kind.query.filter_by(id=id).first()
     db.session.delete(kind)
-    op_log = Oplog(reason='删除分类')
+    op_log = Oplog(id=g.user_id, reason='删除分类')
     db.session.add(op_log)
     db.session.commit()
     return jsonify({'flag': 'success', 'status': 200})
@@ -543,7 +532,8 @@ def get_permission():
                                     Permission.url,
                                     Permission.method,
                                     Permission.create_time,
-                                    Role.role_name). \
+                                    Role.role_name).\
+        order_by(Permission.create_time.desc()). \
         paginate(int(page_size), per_page=10, error_out=False)
     result = []
     for permission in permissions.items:
@@ -578,7 +568,7 @@ def add_permission():
 
     permission = Permission(name=name, url=url, method=method, role=role)
     db.session.add(permission)
-    op_log = Oplog(reason='添加权限')
+    op_log = Oplog(id=g.user_id, reason='添加权限')
     db.session.add(op_log)
     db.session.commit()
 
@@ -592,7 +582,7 @@ def delete_permission(id):
 
     permission = Permission.query.filter_by(id=id).first()
     db.session.delete(permission)
-    op_log = Oplog(reason='删除权限')
+    op_log = Oplog(id=g.user_id, reason='删除权限')
     db.session.add(op_log)
     db.session.commit()
     return jsonify({'flag': 'success', 'status': 200})
@@ -609,7 +599,7 @@ def image_upload():
             filename = str(time.time()) + '.' + filename.split('.')[-1]
             image.save('app/static/' + filename)
             User.query.filter_by(id=g.user_id).update({'face': request.base_url + '/' + filename + '?w=100&h=100'})
-            user_log = Userlog(user_id=g.user_id)
+            user_log = Userlog(user_id=g.user_id, reason="更改头像")
             db.session.add(user_log)
             db.session.commit()
             return jsonify({'flag': 'success',

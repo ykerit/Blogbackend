@@ -111,6 +111,26 @@ class Permission(db.Model):
                 'role': 2,
                 'url': '/api/user',
                 'method': 'GET'
+            }, {
+                'name': '查看首页分类',
+                'role': 2,
+                'url': '/api/classification',
+                'method': 'GET'
+            }, {
+                'name': '删除个人文章',
+                'role': 2,
+                'url': '/api/article',
+                'method': 'DELETE'
+            }, {
+                'name': '查看个人文章',
+                'role': 2,
+                'url': '/api/user_article',
+                'method': 'GET'
+            }, {
+                'name': '普通用户更改个人资料',
+                'role': 2,
+                'url': '/api/user',
+                'method': 'PUT'
             }
         ]
         for i in permissions:
@@ -246,10 +266,10 @@ class User(db.Model, UserMixin):
     title = db.Column(db.String(50), default='暂无')  # 技术栈
     group = db.Column(db.String(25), default='暂无')  # 学历
     signature = db.Column(db.String(100), default='海纳百川，有容乃大')  # 个人签名
+    tag = db.Column(db.String(128), default='贵族')  # 标签
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     article = db.relationship('Article', backref='user', lazy='dynamic')
     user_logs = db.relationship('Userlog', backref='user')  # 会员日志外键关系关联
-    admin_logs = db.relationship('Adminlog', backref='user')  # 管理员外键关系关联
     comments = db.relationship('Comment', backref='user')  # 评论外键关联
 
     def __init__(self, name, password, role):
@@ -266,9 +286,6 @@ class User(db.Model, UserMixin):
             admin = User(name='yker', password='yker123', role=1)
             db.session.add(admin)
         db.session.commit()
-
-    def __repr__(self):
-        return '' % (self.id, self.name)
 
     # json序列化
     def to_json(self):
@@ -290,33 +307,13 @@ class Userlog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     ip = db.Column(db.String(100))
+    reason = db.Column(db.String(50))
     create_time = db.Column(db.DateTime, index=True)
 
-    def __init__(self, user_id):
+    def __init__(self, user_id, reason):
         self.create_time = gen_time()
         self.user_id = user_id
-
-    def to_json(self):
-        dict = self.__dict__
-        if "_sa_instance_state" in dict:
-            del dict["_sa_instance_state"]
-        return dict
-
-
-# 管理员日志
-class Adminlog(db.Model):
-    __tablename__ = 'adminlog'
-    id = db.Column(db.Integer, primary_key=True)
-    admin_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    ip = db.Column(db.String(100))
-    create_time = db.Column(db.DateTime, index=True)
-
-    def __init__(self, admin_id):
-        self.create_time = gen_time()
-        self.admin_id = admin_id
-
-    def __repr__(self):
-        return "<Admin %r>" % self.id
+        self.reason = reason
 
     def to_json(self):
         dict = self.__dict__
@@ -329,17 +326,15 @@ class Adminlog(db.Model):
 class Oplog(db.Model):
     __tablename__ = 'oplog'
     id = db.Column(db.Integer, primary_key=True)
-    admin_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     ip = db.Column(db.String(100))
     reason = db.Column(db.String(600))
     create_time = db.Column(db.DateTime, index=True)
 
-    def __init__(self, reason):
+    def __init__(self, id, reason):
         self.create_time = gen_time()
         self.reason = reason
-
-    def __repr__(self):
-        return "<opmin %r>" % self.id
+        self.user_id = id
 
     def to_json(self):
         dict = self.__dict__
